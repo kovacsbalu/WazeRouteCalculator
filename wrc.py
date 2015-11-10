@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
 import logging
 import urllib
@@ -68,7 +71,7 @@ class WazeRouteCalculator(object):
 
 if __name__ == '__main__':
     from_address = 'Budapest, Hungary'
-    to_address = 'Gyor, Hungary'
+    to_address = 'Győr, Hungary'
     wrc = WazeRouteCalculator(from_address, to_address)
     route = wrc.get_route()
     wrc.calc_route_info(route)
