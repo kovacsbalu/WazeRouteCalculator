@@ -6,8 +6,8 @@ import wrc
 
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
-wrc = wrc.WazeRouteCalculator(from_address, to_address)
-wrc.calc_route_info()
+route = wrc.WazeRouteCalculator(from_address, to_address)
+route.calc_route_info()
 ```
 
 ```
