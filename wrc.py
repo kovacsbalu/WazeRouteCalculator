@@ -60,7 +60,9 @@ class WazeRouteCalculator(object):
         }
         response = urllib.urlopen(self.WAZE_URL + routing_req, data=urllib.urlencode(url_options)).read()
         response_json = json.loads(response)
-        return response_json['alternatives'][0]['response']
+        if response_json.get("alternatives"):
+            return response_json['alternatives'][0]['response']
+        return response_json['response']
 
     def calc_route_info(self):
         """Calculate best route info."""
