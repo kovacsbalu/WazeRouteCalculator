@@ -43,9 +43,9 @@ class WazeRouteCalculator(object):
     def get_route(self):
         """Get route data from waze"""
 
-        get_route = "row-RoutingManager/routingRequest"
-        # get_route_us_canada = "RoutingManager/routingRequest"
-        # get_route_israel = "il-RoutingManager/routingRequest"
+        routing_req = "row-RoutingManager/routingRequest"
+        # routing_req_us_canada = "RoutingManager/routingRequest"
+        # routing_req_israel = "il-RoutingManager/routingRequest"
 
         url_options = {
             "from": "x:%s y:%s bd:true" % (self.start_coords["lon"], self.start_coords["lat"]),
@@ -58,7 +58,7 @@ class WazeRouteCalculator(object):
             "nPaths": 3,
             "options": "AVOID_TRAILS:t"
         }
-        response = urllib.urlopen(self.WAZE_URL + get_route, data=urllib.urlencode(url_options)).read()
+        response = urllib.urlopen(self.WAZE_URL + routing_req, data=urllib.urlencode(url_options)).read()
         response_json = json.loads(response)
         return response_json['alternatives'][0]['response']
 
