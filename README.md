@@ -1,6 +1,8 @@
 # WazeRouteCalculator
 Calculate actual route time and distance with waze api
 
+[![Build Status](https://travis-ci.org/kovacsbalu/WazeRouteCalculator.svg?branch=master)](https://travis-ci.org/kovacsbalu/WazeRouteCalculator)
+
 ```python
 import wrc
 
