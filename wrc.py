@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Waze route calculator"""
 
@@ -78,10 +77,3 @@ class WazeRouteCalculator(object):
         route_distance = distance / 1000.0
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
-
-
-if __name__ == '__main__':
-    from_address = 'Budapest, Hungary'
-    to_address = 'Győr, Hungary'
-    wrc = WazeRouteCalculator(from_address, to_address)
-    wrc.calc_route_info()
