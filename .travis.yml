@@ -1,4 +1,6 @@
 language: python
 python:
   - "2.7"
-script: py.test test.py -v
+script: coverage run --source wrc.py -m py.test test.py -v
+after_success:
+  coveralls
