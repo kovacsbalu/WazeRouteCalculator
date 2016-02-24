@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import wrc
+import wrc.wrc as wrc
 import mock
 import StringIO
 

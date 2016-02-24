@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import wrc
+import wrc.wrc as wrc
 
 from_address = 'Budapest, Hungary'
 to_address = 'Győr, Hungary'
