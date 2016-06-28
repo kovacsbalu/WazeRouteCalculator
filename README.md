@@ -5,12 +5,19 @@
 
 Calculate actual route time and distance with waze api
 
+## Installation
+
+```
+pip install WazeRouteCalculator
+```
+## Example
+
 ```python
-import wrc
+import WazeRouteCalculator
 
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
-route = wrc.WazeRouteCalculator(from_address, to_address)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address)
 route.calc_route_info()
 ```
 
