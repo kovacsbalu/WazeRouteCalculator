@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import wrc
+import WazeRouteCalculator
 
 from_address = 'Budapest, Hungary'
 to_address = 'Győr, Hungary'
-route = wrc.WazeRouteCalculator(from_address, to_address)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address)
 try:
     route.calc_route_info()
-except wrc.WRCError as err:
+except WazeRouteCalculator.WRCError as err:
     print err

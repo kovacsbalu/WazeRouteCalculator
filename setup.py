@@ -16,7 +16,7 @@ def read(fname):
 
 
 setup(
-    name = 'wrc',
+    name = 'WazeRouteCalculator',
     version = version,
     author = 'Balint Kovacs',
     author_email = 'kovacsbalu@gmail.com',
