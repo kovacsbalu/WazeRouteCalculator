@@ -3,7 +3,7 @@ from setuptools import setup
 import os
 
 
-with open("./wrc/__version__.py") as version_file:
+with open("./WazeRouteCalculator/__version__.py") as version_file:
     version = version_file.read().split("\"")[1]
 
 
@@ -24,6 +24,6 @@ setup(
     url = 'https://github.com/kovacsbalu/WazeRouteCalculator',
     license = 'GNU GPL v3',
     keywords = ['waze', 'route', 'calculator'],
-    packages = ['wrc'],
+    packages = ['WazeRouteCalculator'],
     long_description = read('readme.md')
 )
