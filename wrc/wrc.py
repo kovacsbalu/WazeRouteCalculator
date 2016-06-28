@@ -6,6 +6,14 @@ import logging
 import urllib
 
 
+class WRCError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class WazeRouteCalculator(object):
     """Calculate actual route time and distance with waze api"""
 
@@ -59,6 +67,8 @@ class WazeRouteCalculator(object):
         }
         response = urllib.urlopen(self.WAZE_URL + routing_req, data=urllib.urlencode(url_options)).read()
         response_json = json.loads(response)
+        if response_json.get("error"):
+            raise WRCError(response_json.get("error"))
         if response_json.get("alternatives"):
             return response_json['alternatives'][0]['response']
         return response_json['response']
