@@ -22,6 +22,7 @@ setup(
     author_email = 'kovacsbalu@gmail.com',
     description = "Calculate actual route time and distance with waze api.",
     url = 'https://github.com/kovacsbalu/WazeRouteCalculator',
+    download_url="https://github.com/kovacsbalu/WazeRouteCalculator/tarball/" + version,
     license = 'GNU GPL v3',
     keywords = ['waze', 'route', 'calculator'],
     packages = ['WazeRouteCalculator'],
