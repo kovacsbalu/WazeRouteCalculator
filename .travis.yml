@@ -3,6 +3,6 @@ python:
   - "2.7"
 install:
 - pip install coveralls
-script: coverage run --source wrc -m py.test tests.py -v
+script: coverage run --source WazeRouteCalculator -m py.test tests.py -v
 after_success:
   coveralls

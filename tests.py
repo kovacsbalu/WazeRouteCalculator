@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import wrc.wrc as wrc
+import WazeRouteCalculator as wrc
 import mock
 import StringIO
 
