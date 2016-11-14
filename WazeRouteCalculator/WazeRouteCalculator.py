@@ -3,7 +3,7 @@
 
 import json
 import logging
-import urllib
+import requests
 
 
 class WRCError(Exception):
@@ -33,7 +33,7 @@ class WazeRouteCalculator(object):
     def address_to_coords(self, address):
         """Convert address to coordinates"""
 
-        get_cords = "SearchServer/mozi"
+        get_cords = "SearchServer/mozi?"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -41,8 +41,8 @@ class WazeRouteCalculator(object):
             "lon": "19.040",
             "lat": "47.498"
         }
-        response = urllib.urlopen(self.WAZE_URL + get_cords, data=urllib.urlencode(url_options)).read()
-        response_json = json.loads(response)[0]
+        response = requests.get(self.WAZE_URL + get_cords, params=url_options)
+        response_json = response.json()[0]
         lon = response_json['location']['lon']
         lat = response_json['location']['lat']
         return {"lon": lon, "lat": lat}
@@ -50,23 +50,23 @@ class WazeRouteCalculator(object):
     def get_route(self):
         """Get route data from waze"""
 
-        routing_req = "row-RoutingManager/routingRequest"
+        routing_req = "row-RoutingManager/routingRequest?"
         # routing_req_us_canada = "RoutingManager/routingRequest"
         # routing_req_israel = "il-RoutingManager/routingRequest"
 
         url_options = {
-            "from": "x:%s y:%s bd:true" % (self.start_coords["lon"], self.start_coords["lat"]),
-            "to": "x:%s y:%s bd:true" % (self.end_coords["lon"], self.end_coords["lat"]),
+            "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
+            "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
             "at": 0,
             "returnJSON": "true",
             "returnGeometries": "true",
             "returnInstructions": "true",
             "timeout": 60000,
             "nPaths": 3,
-            "options": "AVOID_TRAILS:t"
+            "options": "AVOID_TRAILS:t",
         }
-        response = urllib.urlopen(self.WAZE_URL + routing_req, data=urllib.urlencode(url_options)).read()
-        response_json = json.loads(response)
+        response = requests.get(self.WAZE_URL + routing_req, params=url_options)
+        response_json = response.json()
         if response_json.get("error"):
             raise WRCError(response_json.get("error"))
         if response_json.get("alternatives"):
