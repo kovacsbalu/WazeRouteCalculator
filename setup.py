@@ -26,5 +26,6 @@ setup(
     license = 'GNU GPL v3',
     keywords = ['waze', 'route', 'calculator'],
     packages = ['WazeRouteCalculator'],
+    install_requires = ['requests'],
     long_description = read('readme.md')
 )
