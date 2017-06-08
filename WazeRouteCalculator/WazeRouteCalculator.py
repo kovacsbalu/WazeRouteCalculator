@@ -22,7 +22,8 @@ class WazeRouteCalculator(object):
     def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
         self.log.setLevel(log_lvl)
-        self.log.addHandler(logging.StreamHandler())
+        if not len(self.log.handlers):
+            self.log.addHandler(logging.StreamHandler())
         self.log.info("From: %s - to: %s", start_address, end_address)
 
         region = region.upper()
