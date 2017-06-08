@@ -22,6 +22,8 @@ class WazeRouteCalculator(object):
 
     def __init__(self, start_address, end_address, log_lvl=logging.INFO):
         self.log = logging.getLogger('%s.%d' % (__name__, time()))
+        if log_lvl is None:
+            log_lvl = logging.WARNING
         self.log.setLevel(log_lvl)
         self.log.addHandler(logging.StreamHandler())
         self.log.info("From: %s - to: %s", start_address, end_address)
