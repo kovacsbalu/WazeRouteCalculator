@@ -60,6 +60,47 @@ class TestWRC():
         assert time == 2.00
         assert dist == 1.00
 
+    def test_get_route_eu(self):
+        self.routing_req = self.waze_url + "row-RoutingManager/routingRequest"
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "", "EU")
+            response = route.get_route()
+        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
+    def test_get_route_us(self):
+        self.routing_req = self.waze_url + "RoutingManager/routingRequest"
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "", "US")
+            response = route.get_route()
+        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
+    def test_get_route_na(self):
+        """NA (North America) is an alias for US (United States)"""
+        self.routing_req = self.waze_url + "RoutingManager/routingRequest"
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "", "na")
+            response = route.get_route()
+        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
+    def test_get_route_il(self):
+        self.routing_req = self.waze_url + "il-RoutingManager/routingRequest"
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "", "il")
+            response = route.get_route()
+        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
     def xtest_full_route_calc(self):
         from_address = 'From address'
         to_address = 'To address'

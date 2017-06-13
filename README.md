@@ -17,7 +17,8 @@ import WazeRouteCalculator
 
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address)
+region = 'EU'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
 route.calc_route_info()
 ```
 
@@ -27,6 +28,15 @@ From: Budapest, Hungary - to: Gyor, Hungary
 Time 69.27 minutes, distance 120.91 km.
 ```
 
+`from_address` and `to_address` are required. `region` is optional, and defaults to "EU". `region` can be one of:
+
+- EU (Europe)
+- US or NA (North America)
+- IL (Israel)
+
+The Waze API has separate URLs for each region, and so identifying the correct region is crucial.
+
+### Silence logging
 Pass `log_lvl=None` to silence output and just get the return value:
 
 ```python
