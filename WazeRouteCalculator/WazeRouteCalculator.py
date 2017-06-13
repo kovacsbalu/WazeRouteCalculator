@@ -78,7 +78,7 @@ class WazeRouteCalculator(object):
             "returnGeometries": "true",
             "returnInstructions": "true",
             "timeout": 60000,
-            "nPaths": 3,
+            "nPaths": 1,
             "options": "AVOID_TRAILS:t",
         }
         response = requests.get(self.WAZE_URL + routing_req, params=url_options)
