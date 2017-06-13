@@ -4,6 +4,7 @@
 import json
 import logging
 import requests
+from time import time
 
 
 class WRCError(Exception):
@@ -21,6 +22,8 @@ class WazeRouteCalculator(object):
 
     def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
+        if log_lvl is None:
+            log_lvl = logging.WARNING
         self.log.setLevel(log_lvl)
         if not len(self.log.handlers):
             self.log.addHandler(logging.StreamHandler())

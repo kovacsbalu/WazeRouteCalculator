@@ -112,3 +112,9 @@ class TestWRC():
         assert len(self.url_mock.call_args_list) == 3
         assert time == 1.00
         assert dist == 0.40
+
+    def test_silent_logging(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        route = wrc.WazeRouteCalculator(from_address, to_address, log_lvl=None)
+        assert route.log.getEffectiveLevel() == wrc.logging.WARNING
