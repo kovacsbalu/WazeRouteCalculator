@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Waze route calculator"""
 
-import json
+# import json
 import logging
 import requests
-from time import time
+# from time import time
 
 
 class WRCError(Exception):
@@ -16,7 +16,7 @@ class WRCError(Exception):
 
 
 class WazeRouteCalculator(object):
-    """Calculate actual route time and distance with waze api"""
+    """Calculate actual route time and distance with Waze API"""
 
     WAZE_URL = "https://www.waze.com/"
 
@@ -62,7 +62,7 @@ class WazeRouteCalculator(object):
         lat = response_json['location']['lat']
         return {"lon": lon, "lat": lat}
 
-    def get_route(self):
+    def get_route(self, nPaths=1):
         """Get route data from waze"""
 
         routing_req_eu = "row-RoutingManager/routingRequest?"
@@ -78,7 +78,7 @@ class WazeRouteCalculator(object):
             "returnGeometries": "true",
             "returnInstructions": "true",
             "timeout": 60000,
-            "nPaths": 3,
+            "nPaths": nPaths,
             "options": "AVOID_TRAILS:t",
         }
         response = requests.get(self.WAZE_URL + routing_req, params=url_options)
@@ -86,14 +86,12 @@ class WazeRouteCalculator(object):
         if response_json.get("error"):
             raise WRCError(response_json.get("error"))
         if response_json.get("alternatives"):
-            return response_json['alternatives'][0]['response']
+            return [alt['response'] for alt in response_json['alternatives']]
+        if nPaths > 1:
+            return [response_json['response']]
         return response_json['response']
 
-    def calc_route_info(self):
-        """Calculate best route info."""
-
-        route = self.get_route()
-        results = route['results']
+    def _add_up_route(self, results):
         time = 0
         distance = 0
         for segment in results:
@@ -101,5 +99,23 @@ class WazeRouteCalculator(object):
             distance += segment['length']
         route_time = time / 60.0
         route_distance = distance / 1000.0
+        return route_time, route_distance
+
+    def calc_route_info(self):
+        """Calculate best route info."""
+
+        route = self.get_route(1)
+        results = route['results']
+        route_time, route_distance = self._add_up_route(results)
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
+
+    def calc_all_routes_info(self, nPaths=3):
+        """Calculate best route info."""
+
+        routes = self.get_route(nPaths)
+        results = {route['routeName']: self._add_up_route(route['results']) for route in routes}
+        route_time = [route[0] for route in results.values()]
+        route_distance = [route[1] for route in results.values()]
+        self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
+        return results
