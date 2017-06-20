@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """Waze route calculator"""
 
-# import json
 import logging
 import requests
-# from time import time
 
 
 class WRCError(Exception):
@@ -62,7 +60,7 @@ class WazeRouteCalculator(object):
         lat = response_json['location']['lat']
         return {"lon": lon, "lat": lat}
 
-    def get_route(self, nPaths=1):
+    def get_route(self, npaths=1):
         """Get route data from waze"""
 
         routing_req_eu = "row-RoutingManager/routingRequest?"
@@ -78,7 +76,7 @@ class WazeRouteCalculator(object):
             "returnGeometries": "true",
             "returnInstructions": "true",
             "timeout": 60000,
-            "nPaths": nPaths,
+            "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
         response = requests.get(self.WAZE_URL + routing_req, params=url_options)
@@ -87,7 +85,7 @@ class WazeRouteCalculator(object):
             raise WRCError(response_json.get("error"))
         if response_json.get("alternatives"):
             return [alt['response'] for alt in response_json['alternatives']]
-        if nPaths > 1:
+        if npaths > 1:
             return [response_json['response']]
         return response_json['response']
 
@@ -110,10 +108,10 @@ class WazeRouteCalculator(object):
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
 
-    def calc_all_routes_info(self, nPaths=3):
-        """Calculate best route info."""
+    def calc_all_routes_info(self, npaths=3):
+        """Calculate all route infos."""
 
-        routes = self.get_route(nPaths)
+        routes = self.get_route(npaths)
         results = {route['routeName']: self._add_up_route(route['results']) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]

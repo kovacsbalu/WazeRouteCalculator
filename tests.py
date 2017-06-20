@@ -3,7 +3,6 @@
 import WazeRouteCalculator as wrc
 import mock
 import requests_mock
-# import StringIO
 
 
 class TestWRC():
