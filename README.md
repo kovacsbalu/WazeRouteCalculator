@@ -74,21 +74,21 @@ Sometimes you may want to map travel times between cities and just see how long 
 You can pass `stop_at_bounds=True` to `calc_route_info` or `calc_all_routes_info` and it will ignore travel within the origin and destination cities.
 
 ```python
-In [1]: import WazeRouteCalculator
-   ...:
-   ...: from_address = 'Budapest, Hungary'
-   ...: to_address = 'Gyor, Hungary'
-   ...: region = 'EU'
-   ...: route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
-   ...: route.calc_route_info(stop_at_bounds=True)
-   ...:
-From: Budapest, Hungary - to: Gyor, Hungary
-Time 46.27 minutes, distance 95.29 km.
-Out[1]: (46.266666666666666, 95.294)
+import WazeRouteCalculator
 
-In [2]: route.calc_route_info()
+from_address = 'Budapest, Hungary'
+to_address = 'Gyor, Hungary'
+region = 'EU'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
+From: Budapest, Hungary - to: Gyor, Hungary
+
+route.calc_route_info(stop_at_bounds=True)
+Time 46.27 minutes, distance 95.29 km.
+(46.266666666666666, 95.294)
+
+route.calc_route_info()
 Time 72.42 minutes, distance 121.33 km.
-Out[2]: (72.41666666666667, 121.325)
+(72.41666666666667, 121.325)
 ```
 
 ### Silence logging
