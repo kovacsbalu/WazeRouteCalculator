@@ -60,8 +60,31 @@ Time 74.45 - 129.43 minutes, distance 120.91 - 130.08 km.
 
 `calc_all_routes_info` takes an optional single parameter, the number of routes to fetch. Note that the Waze API may not return as many possibilities as requested. The function returns a dict: `{'route_name1': (route_time1, route_distance1), 'route_name2': (route_time2, route_distance2), ...}`.
 
+### Intercity travel times only
 
-## Silence logging
+Sometimes you may want to map travel times between cities and just see how long it takes to get from one to other. However, Waze's API will take you between two specific spots in the city, which can add to the time and distance, especially in larger cities.
+
+You can pass `stop_at_bounds=True` to `calc_route_info` or `calc_all_routes_info` and it will ignore travel within the origin and destination cities.
+
+```python
+In [1]: import WazeRouteCalculator
+   ...:
+   ...: from_address = 'Budapest, Hungary'
+   ...: to_address = 'Gyor, Hungary'
+   ...: region = 'EU'
+   ...: route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
+   ...: route.calc_route_info(stop_at_bounds=True)
+   ...:
+From: Budapest, Hungary - to: Gyor, Hungary
+Time 46.27 minutes, distance 95.29 km.
+Out[1]: (46.266666666666666, 95.294)
+
+In [2]: route.calc_route_info()
+Time 72.42 minutes, distance 121.33 km.
+Out[2]: (72.41666666666667, 121.325)
+```
+
+### Silence logging
 Pass `log_lvl=None` to silence output and just get the return value:
 
 ```python

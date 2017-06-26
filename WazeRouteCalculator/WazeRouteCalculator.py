@@ -58,7 +58,13 @@ class WazeRouteCalculator(object):
         response_json = response.json()[0]
         lon = response_json['location']['lon']
         lat = response_json['location']['lat']
-        return {"lon": lon, "lat": lat}
+        bounds = response_json['bounds']  # sometimes the coords don't match up
+        if bounds is not None:
+            bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
+            bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
+        else:
+            bounds = {}
+        return {"lon": lon, "lat": lat, "bounds": bounds}
 
     def get_route(self, npaths=1):
         """Get route data from waze"""
@@ -89,30 +95,49 @@ class WazeRouteCalculator(object):
             return [response_json['response']]
         return response_json['response']
 
-    def _add_up_route(self, results):
+    def _add_up_route(self, results, stop_at_bounds=False):
+        """Calculate route time and distance."""
+
+        start_bounds = self.start_coords['bounds']
+        end_bounds = self.end_coords['bounds']
+
+        def between(target, min, max):
+            return target > min and target < max
+
         time = 0
         distance = 0
         for segment in results:
+            if stop_at_bounds and segment.get('path'):
+                x = segment['path']['x']
+                y = segment['path']['y']
+                if (
+                    between(x, start_bounds.get('left', 0), start_bounds.get('right', 0)) or
+                    between(x, end_bounds.get('left', 0), end_bounds.get('right', 0))
+                ) and (
+                    between(y, start_bounds.get('bottom', 0), start_bounds.get('top', 0)) or
+                    between(y, end_bounds.get('bottom', 0), end_bounds.get('top', 0))
+                ):
+                    continue
             time += segment['crossTime']
             distance += segment['length']
         route_time = time / 60.0
         route_distance = distance / 1000.0
         return route_time, route_distance
 
-    def calc_route_info(self):
+    def calc_route_info(self, stop_at_bounds=False):
         """Calculate best route info."""
 
         route = self.get_route(1)
         results = route['results']
-        route_time, route_distance = self._add_up_route(results)
+        route_time, route_distance = self._add_up_route(results, stop_at_bounds=stop_at_bounds)
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
 
-    def calc_all_routes_info(self, npaths=3):
+    def calc_all_routes_info(self, npaths=3, stop_at_bounds=False):
         """Calculate all route infos."""
 
         routes = self.get_route(npaths)
-        results = {route['routeName']: self._add_up_route(route['results']) for route in routes}
+        results = {route['routeName']: self._add_up_route(route['results'], stop_at_bounds=stop_at_bounds) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
         self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
