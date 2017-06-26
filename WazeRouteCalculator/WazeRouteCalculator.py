@@ -95,7 +95,7 @@ class WazeRouteCalculator(object):
             return [response_json['response']]
         return response_json['response']
 
-    def _add_up_route(self, results, stop_at_bounds=False):
+    def _add_up_route(self, results, real_time=True, stop_at_bounds=False):
         """Calculate route time and distance."""
 
         start_bounds = self.start_coords['bounds']
@@ -118,26 +118,26 @@ class WazeRouteCalculator(object):
                     between(y, end_bounds.get('bottom', 0), end_bounds.get('top', 0))
                 ):
                     continue
-            time += segment['crossTime']
+            time += segment['crossTime' if real_time else 'crossTimeWithoutRealTime']
             distance += segment['length']
         route_time = time / 60.0
         route_distance = distance / 1000.0
         return route_time, route_distance
 
-    def calc_route_info(self, stop_at_bounds=False):
+    def calc_route_info(self, real_time=True, stop_at_bounds=False):
         """Calculate best route info."""
 
         route = self.get_route(1)
         results = route['results']
-        route_time, route_distance = self._add_up_route(results, stop_at_bounds=stop_at_bounds)
+        route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds)
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
 
-    def calc_all_routes_info(self, npaths=3, stop_at_bounds=False):
+    def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False):
         """Calculate all route infos."""
 
         routes = self.get_route(npaths)
-        results = {route['routeName']: self._add_up_route(route['results'], stop_at_bounds=stop_at_bounds) for route in routes}
+        results = {route['routeName']: self._add_up_route(route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
         self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
