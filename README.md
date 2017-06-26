@@ -63,6 +63,10 @@ Time 74.45 - 129.43 minutes, distance 120.91 - 130.08 km.
 
 `calc_all_routes_info` takes an optional single parameter, the number of routes to fetch. Note that the Waze API may not return as many possibilities as requested. The function returns a dict: `{'route_name1': (route_time1, route_distance1), 'route_name2': (route_time2, route_distance2), ...}`.
 
+### No real time
+
+You can pass `real_time=False` to `calc_route_info` or `calc_all_routes_info` to get the time estimate not including current conditions, but rather the average travel time for the current time. This would avoid something like traffic accidents or construction that is slowing down traffic abnormally on the day you run it from messing up the data. Note that this is not the same as travel time with no traffic at all, it is simply the usual traffic.
+
 ### Intercity travel times only
 
 Sometimes you may want to map travel times between cities and just see how long it takes to get from one to other. However, Waze's API will take you between two specific spots in the city, which can add to the time and distance, especially in larger cities.
