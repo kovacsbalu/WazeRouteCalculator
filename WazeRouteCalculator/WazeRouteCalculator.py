@@ -66,7 +66,7 @@ class WazeRouteCalculator(object):
             bounds = {}
         return {"lon": lon, "lat": lat, "bounds": bounds}
 
-    def get_route(self, npaths=1):
+    def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
 
         routing_req_eu = "row-RoutingManager/routingRequest?"
@@ -77,7 +77,7 @@ class WazeRouteCalculator(object):
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
-            "at": 0,
+            "at": time_delta,
             "returnJSON": "true",
             "returnGeometries": "true",
             "returnInstructions": "true",
@@ -85,7 +85,10 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
-        response = requests.get(self.WAZE_URL + routing_req, params=url_options)
+
+        headers = {'referer': 'https://www.waze.com'}
+
+        response = requests.get(self.WAZE_URL + routing_req, params=url_options, headers=headers)
         response_json = response.json()
         if response_json.get("error"):
             raise WRCError(response_json.get("error"))
@@ -124,19 +127,19 @@ class WazeRouteCalculator(object):
         route_distance = distance / 1000.0
         return route_time, route_distance
 
-    def calc_route_info(self, real_time=True, stop_at_bounds=False):
+    def calc_route_info(self, real_time=True, stop_at_bounds=False, time_delta=0):
         """Calculate best route info."""
 
-        route = self.get_route(1)
+        route = self.get_route(1, time_delta)
         results = route['results']
         route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds)
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
 
-    def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False):
+    def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False, time_delta=0):
         """Calculate all route infos."""
 
-        routes = self.get_route(npaths)
+        routes = self.get_route(npaths, time_delta)
         results = {route['routeName']: self._add_up_route(route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
