@@ -18,7 +18,7 @@ class WazeRouteCalculator(object):
 
     WAZE_URL = "https://www.waze.com/"
 
-    def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
+    def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO, time_delta=0):
         self.log = logging.getLogger(__name__)
         if log_lvl is None:
             log_lvl = logging.WARNING
@@ -31,6 +31,8 @@ class WazeRouteCalculator(object):
         if region == 'NA':  # North America
             region = 'US'
         self.region = region
+
+        self.time_delta = time_delta
 
         self.start_coords = self.address_to_coords(start_address)
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lon"], self.start_coords["lat"])
@@ -77,7 +79,7 @@ class WazeRouteCalculator(object):
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
-            "at": 0,
+            "at": self.time_delta,
             "returnJSON": "true",
             "returnGeometries": "true",
             "returnInstructions": "true",
@@ -85,7 +87,11 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
-        response = requests.get(self.WAZE_URL + routing_req, params=url_options)
+
+        headers = {'referer': 'https://www.waze.com'}
+
+        response = requests.get(self.WAZE_URL + routing_req, params=url_options, headers=headers)
+        print response.text
         response_json = response.json()
         if response_json.get("error"):
             raise WRCError(response_json.get("error"))
