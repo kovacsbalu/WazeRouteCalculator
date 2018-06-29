@@ -86,7 +86,11 @@ class WazeRouteCalculator(object):
             "options": "AVOID_TRAILS:t",
         }
 
-        headers = {'referer': 'https://www.waze.com'}
+        user_agent = "Mozilla/5.0"
+        headers = {
+            "User-Agent": user_agent,
+            "referer": self.WAZE_URL,
+        }
 
         response = requests.get(self.WAZE_URL + routing_req, params=url_options, headers=headers)
         response_json = response.json()
