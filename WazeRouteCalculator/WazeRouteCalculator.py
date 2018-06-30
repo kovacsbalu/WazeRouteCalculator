@@ -86,9 +86,8 @@ class WazeRouteCalculator(object):
             "options": "AVOID_TRAILS:t",
         }
 
-        user_agent = "Mozilla/5.0"
         headers = {
-            "User-Agent": user_agent,
+            "User-Agent": "Mozilla/5.0",
             "referer": self.WAZE_URL,
         }
 
