@@ -92,6 +92,7 @@ class WazeRouteCalculator(object):
         }
 
         response = requests.get(self.WAZE_URL + routing_req, params=url_options, headers=headers)
+        response.encoding = 'utf-8'
         response_json = response.json()
         if response_json.get("error"):
             raise WRCError(response_json.get("error"))
