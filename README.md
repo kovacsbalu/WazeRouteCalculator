@@ -99,7 +99,8 @@ import WazeRouteCalculator
 
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, log_lvl=None)
+region = 'EU'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, log_lvl=None)
 route_time, route_distance = route.calc_route_info()
 print 'Time %.2f minutes, distance %.2f km.' % (route_time, route_distance)
 ```
