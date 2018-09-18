@@ -17,6 +17,10 @@ class WazeRouteCalculator(object):
     """Calculate actual route time and distance with Waze API"""
 
     WAZE_URL = "https://www.waze.com/"
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0",
+        "referer": WAZE_URL,
+    }
 
     def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
@@ -54,12 +58,8 @@ class WazeRouteCalculator(object):
             "lon": BASE_COORDS["lon"],
             "lat": BASE_COORDS["lat"]
         }
-        headers = {
-            "User-Agent": "Mozilla/5.0",
-            "referer": self.WAZE_URL,
-        }
 
-        response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=headers)
+        response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=self.HEADERS)
         response_json = response.json()[0]
         lon = response_json['location']['lon']
         lat = response_json['location']['lat']
@@ -88,13 +88,9 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
-        headers = {
-            "User-Agent": "Mozilla/5.0",
-            "referer": self.WAZE_URL,
-        }
 
         for routing_srv in routing_servers:
-            response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=headers)
+            response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)
             response.encoding = 'utf-8'
             response_json = self._check_response(response)
             if response_json:
