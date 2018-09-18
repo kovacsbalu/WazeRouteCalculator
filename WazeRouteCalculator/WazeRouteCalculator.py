@@ -54,7 +54,12 @@ class WazeRouteCalculator(object):
             "lon": BASE_COORDS["lon"],
             "lat": BASE_COORDS["lat"]
         }
-        response = requests.get(self.WAZE_URL + get_cords, params=url_options)
+        headers = {
+            "User-Agent": "Mozilla/5.0",
+            "referer": self.WAZE_URL,
+        }
+
+        response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=headers)
         response_json = response.json()[0]
         lon = response_json['location']['lon']
         lat = response_json['location']['lat']
@@ -72,7 +77,6 @@ class WazeRouteCalculator(object):
         routing_servers = ["row-RoutingManager/routingRequest",
                            "RoutingManager/routingRequest",
                            "il-RoutingManager/routingRequest"]
-
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
@@ -84,7 +88,6 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
-
         headers = {
             "User-Agent": "Mozilla/5.0",
             "referer": self.WAZE_URL,
