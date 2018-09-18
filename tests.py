@@ -45,51 +45,24 @@ class TestWRC():
         assert coords == {'lat': self.lat, 'lon': self.lon, 'bounds': self.bounds}
         assert m.call_count == 3
 
-    def test_get_route_eu(self):
-        self.routing_req = self.waze_url + "row-RoutingManager/routingRequest"
-        with requests_mock.mock() as m:
-            m.get(self.address_req, text=self.address_to_coords_response)
-            m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator("", "", "EU")
-            response = route.get_route()
-        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
-        assert self.routing_req in m.request_history[2].url
-
-    def test_get_route_us(self):
-        self.routing_req = self.waze_url + "RoutingManager/routingRequest"
-        with requests_mock.mock() as m:
-            m.get(self.address_req, text=self.address_to_coords_response)
-            m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator("", "", "US")
-            response = route.get_route()
-        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
-        assert self.routing_req in m.request_history[2].url
-
-    def test_get_route_na(self):
-        """NA (North America) is an alias for US (United States)"""
-        self.routing_req = self.waze_url + "RoutingManager/routingRequest"
-        with requests_mock.mock() as m:
-            m.get(self.address_req, text=self.address_to_coords_response)
-            m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator("", "", "na")
-            response = route.get_route()
-        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
-        assert self.routing_req in m.request_history[2].url
-
-    def test_get_route_il(self):
-        self.routing_req = self.waze_url + "il-RoutingManager/routingRequest"
-        with requests_mock.mock() as m:
-            m.get(self.address_req, text=self.address_to_coords_response)
-            m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator("", "", "il")
-            response = route.get_route()
-        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
-        assert self.routing_req in m.request_history[2].url
-
     def test_get_route(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "")
+            response = route.get_route()
+        assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
+    def test_get_route_next_server(self):
+        fail_routing_req = self.waze_url + "row-RoutingManager/routingRequest"
+        fail_routing_response = '{}'
+        ok_routing_req = self.waze_url + "RoutingManager/routingRequest"
+        ok_routing_response = '{"response":{"results":[{"length":%s,"crossTime":%s}]}}' % (self.length, self.time)
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(fail_routing_req, text=fail_routing_response)
+            m.get(ok_routing_req, text=ok_routing_response)
             route = wrc.WazeRouteCalculator("", "")
             response = route.get_route()
         assert response == {"results": [{"length": self.length, "crossTime": self.time}]}

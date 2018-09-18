@@ -46,7 +46,7 @@ class WazeRouteCalculator(object):
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
-        get_cords = "SearchServer/mozi?"
+        get_cords = "SearchServer/mozi"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -69,10 +69,9 @@ class WazeRouteCalculator(object):
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
 
-        routing_req_eu = "row-RoutingManager/routingRequest?"
-        routing_req_us_canada = "RoutingManager/routingRequest"
-        routing_req_israel = "il-RoutingManager/routingRequest"
-        routing_req = dict(US=routing_req_us_canada, EU=routing_req_eu, IL=routing_req_israel)[self.region]
+        routing_servers = ["row-RoutingManager/routingRequest",
+                           "RoutingManager/routingRequest",
+                           "il-RoutingManager/routingRequest"]
 
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
@@ -91,16 +90,29 @@ class WazeRouteCalculator(object):
             "referer": self.WAZE_URL,
         }
 
-        response = requests.get(self.WAZE_URL + routing_req, params=url_options, headers=headers)
-        response.encoding = 'utf-8'
-        response_json = response.json()
-        if response_json.get("error"):
+        for routing_srv in routing_servers:
+            response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=headers)
+            response.encoding = 'utf-8'
+            response_json = self._check_response(response)
+            if response_json:
+                if response_json.get("alternatives"):
+                    return [alt['response'] for alt in response_json['alternatives']]
+                if npaths > 1:
+                    return [response_json['response']]
+                return response_json['response']
+        if response_json:
             raise WRCError(response_json.get("error"))
-        if response_json.get("alternatives"):
-            return [alt['response'] for alt in response_json['alternatives']]
-        if npaths > 1:
-            return [response_json['response']]
-        return response_json['response']
+        else:
+            raise WRCError("empty response")
+
+    @staticmethod
+    def _check_response(response):
+        """Check waze server response."""
+        if response.ok:
+            try:
+                return response.json()
+            except simplejson.JSONDecodeError:
+                return None
 
     def _add_up_route(self, results, real_time=True, stop_at_bounds=False):
         """Calculate route time and distance."""
