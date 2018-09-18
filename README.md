@@ -39,7 +39,8 @@ Time 69.27 minutes, distance 120.91 km.
 - US or NA (North America)
 - IL (Israel)
 
-The Waze API has separate URLs for each region, and so identifying the correct region is crucial.
+Region is used for address searching. Setting base coord parameter.
+(Removed from route server selection. Looping through all route servers.)
 
 ### Multiple routes
 
