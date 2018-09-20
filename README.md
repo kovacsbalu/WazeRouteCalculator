@@ -85,11 +85,25 @@ From: Budapest, Hungary - to: Gyor, Hungary
 
 route.calc_route_info(stop_at_bounds=True)
 Time 46.27 minutes, distance 95.29 km.
-(46.266666666666666, 95.294)
 
 route.calc_route_info()
 Time 72.42 minutes, distance 121.33 km.
-(72.41666666666667, 121.325)
+```
+
+### Leave at
+You can pass `time_delta=<int>` to `calc_route_info` or `calc_all_routes_info` to set the leave time from now. The value is between 0 (now - default) and 1440. The following example shows route info from now + 60 minute.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Budapest, Hungary'
+to_address = 'Gyor, Hungary'
+region = 'EU'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
+From: Budapest, Hungary - to: Gyor, Hungary
+
+route.calc_route_info(time_delta=60)
+Time 73.33 minutes, distance 120.92 km.
 ```
 
 ### Silence logging
