@@ -91,7 +91,8 @@ Time 72.42 minutes, distance 121.33 km.
 ```
 
 ### Leave at
-You can pass `time_delta=<int>` to `calc_route_info` or `calc_all_routes_info` to set the leave time from now. The value is between 0 (now - default) and 1440. The following example shows route info from now + 60 minute.
+You can pass `time_delta=<int>` to `calc_route_info` or `calc_all_routes_info` to set the leave time from now. The value is between 0 (now - default) and 1440. 
+The following example shows route info from now + 60 minute.
 
 ```python
 import WazeRouteCalculator
