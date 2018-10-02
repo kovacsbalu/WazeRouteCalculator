@@ -47,7 +47,8 @@ class WazeRouteCalculator(object):
         EU_BASE_COORDS = {"lat": 47.498, "lon": 19.040}
         US_BASE_COORDS = {"lat": 40.713, "lon": -74.006}
         IL_BASE_COORDS = {"lat": 31.768, "lon": 35.214}
-        BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS)[self.region]
+        AU_BASE_COORDS = {"lat": -35.281, "lon": 149.128}
+        BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
         get_cords = "SearchServer/mozi"
