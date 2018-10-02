@@ -94,13 +94,13 @@ class WazeRouteCalculator(object):
             response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)
             response.encoding = 'utf-8'
             response_json = self._check_response(response)
-            if response_json:
+            if response_json and 'error' not in response_json:
                 if response_json.get("alternatives"):
                     return [alt['response'] for alt in response_json['alternatives']]
                 if npaths > 1:
                     return [response_json['response']]
                 return response_json['response']
-        if response_json:
+        if response_json and 'error' not in response_json:
             raise WRCError(response_json.get("error"))
         else:
             raise WRCError("empty response")
@@ -111,7 +111,7 @@ class WazeRouteCalculator(object):
         if response.ok:
             try:
                 return response.json()
-            except simplejson.JSONDecodeError:
+            except ValueError:
                 return None
 
     def _add_up_route(self, results, real_time=True, stop_at_bounds=False):
