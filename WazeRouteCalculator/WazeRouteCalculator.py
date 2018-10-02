@@ -37,16 +37,16 @@ class WazeRouteCalculator(object):
         self.region = region
 
         self.start_coords = self.address_to_coords(start_address)
-        self.log.debug('Start coords: (%s, %s)', self.start_coords["lon"], self.start_coords["lat"])
+        self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
         self.end_coords = self.address_to_coords(end_address)
-        self.log.debug('End coords: (%s, %s)', self.end_coords["lon"], self.end_coords["lat"])
+        self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
 
     def address_to_coords(self, address):
         """Convert address to coordinates"""
 
-        EU_BASE_COORDS = {"lon": 19.040, "lat": 47.498}
-        US_BASE_COORDS = {"lon": -74.006, "lat": 40.713}
-        IL_BASE_COORDS = {"lon": 35.214, "lat": 31.768}
+        EU_BASE_COORDS = {"lat": 47.498, "lon": 19.040}
+        US_BASE_COORDS = {"lat": 40.713, "lon": -74.006}
+        IL_BASE_COORDS = {"lat": 31.768, "lon": 35.214}
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
@@ -55,21 +55,21 @@ class WazeRouteCalculator(object):
             "q": address,
             "lang": "eng",
             "origin": "livemap",
-            "lon": BASE_COORDS["lon"],
-            "lat": BASE_COORDS["lat"]
+            "lat": BASE_COORDS["lat"],
+            "lon": BASE_COORDS["lon"]
         }
 
         response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=self.HEADERS)
         response_json = response.json()[0]
-        lon = response_json['location']['lon']
         lat = response_json['location']['lat']
+        lon = response_json['location']['lon']
         bounds = response_json['bounds']  # sometimes the coords don't match up
         if bounds is not None:
             bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
             bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
         else:
             bounds = {}
-        return {"lon": lon, "lat": lat, "bounds": bounds}
+        return {"lat": lat, "lon": lon, "bounds": bounds}
 
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
