@@ -51,7 +51,7 @@ class WazeRouteCalculator(object):
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
-        get_cords = "SearchServer/mozi"
+        get_cords = "row-SearchServer/mozi"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -61,16 +61,18 @@ class WazeRouteCalculator(object):
         }
 
         response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=self.HEADERS)
-        response_json = response.json()[0]
-        lat = response_json['location']['lat']
-        lon = response_json['location']['lon']
-        bounds = response_json['bounds']  # sometimes the coords don't match up
-        if bounds is not None:
-            bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
-            bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
-        else:
-            bounds = {}
-        return {"lat": lat, "lon": lon, "bounds": bounds}
+        for response_json in response.json():
+            if response_json.get('city'):
+                lat = response_json['location']['lat']
+                lon = response_json['location']['lon']
+                bounds = response_json['bounds']  # sometimes the coords don't match up
+                if bounds is not None:
+                    bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
+                    bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
+                else:
+                    bounds = {}
+                return {"lat": lat, "lon": lon, "bounds": bounds}
+        raise WRCError("Cannot get coords for %s" % address)
 
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""

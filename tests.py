@@ -3,20 +3,21 @@
 import WazeRouteCalculator as wrc
 import mock
 import requests_mock
+import pytest
 
 
 class TestWRC():
 
     def setup_method(self, method):
         self.waze_url = "https://www.waze.com/"
-        self.address_req = self.waze_url + "SearchServer/mozi"
+        self.address_req = self.waze_url + "row-SearchServer/mozi"
         self.routing_req = self.waze_url + "row-RoutingManager/routingRequest"
         self.lat = 47.4979
         self.lon = 19.0402
         self.bounds = {"bottom": 47.4, "top": 47.5, "left": 19, "right": 19.3}
         self.length = 400
         self.time = 60
-        self.address_to_coords_response = '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(self.bounds).replace("'", '"'))
+        self.address_to_coords_response = '[{"city":"Test","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(self.bounds).replace("'", '"'))
         self.routing_response = '{"response":{"results":[{"length":%s,"crossTime":%s}]}}' % (self.length, self.time)
 
     def test_address_to_coords(self):
@@ -36,7 +37,7 @@ class TestWRC():
         test_address = "Testaddress"
 
         bounds = {"top": 47.4, "bottom": 47.5, "right": 19, "left": 19.3}
-        address_to_coords_response = '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(bounds).replace("'", '"'))
+        address_to_coords_response = '[{"city":"Test","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(bounds).replace("'", '"'))
 
         with requests_mock.mock() as m:
             m.get(self.address_req, text=address_to_coords_response)
@@ -44,6 +45,17 @@ class TestWRC():
             coords = route.address_to_coords(test_address)
         assert coords == {'lat': self.lat, 'lon': self.lon, 'bounds': self.bounds}
         assert m.call_count == 3
+
+    def test_address_to_coords_nocity(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        test_address = "Testaddress"
+        address_to_coords_response = '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(self.bounds).replace("'", '"'))
+        with pytest.raises(wrc.WRCError):
+            with requests_mock.mock() as m:
+                m.get(self.address_req, text=address_to_coords_response)
+                route = wrc.WazeRouteCalculator(from_address, to_address)
+                coords = route.address_to_coords(test_address)
 
     def test_get_route(self):
         with requests_mock.mock() as m:
@@ -175,8 +187,8 @@ class TestWRC():
             length = [400, 5000, 500]
             time = [40, 300, 50]
             address_to_coords_response = [
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
+                '[{"city":"Test1","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
+                '[{"city":"Test2","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
             ]
             m.get(self.address_req, [{'text': address_to_coords_response[0]}, {'text': address_to_coords_response[1]}])
             route = wrc.WazeRouteCalculator("", "")
@@ -199,8 +211,8 @@ class TestWRC():
             length = [400, 5000, 500]
             time = [40, 300, 50]
             address_to_coords_response = [
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
+                '[{"city":"Test1","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
+                '[{"city":"Test2","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
             ]
             m.get(self.address_req, [{'text': address_to_coords_response[0]}, {'text': address_to_coords_response[1]}])
             route = wrc.WazeRouteCalculator("", "")
@@ -224,8 +236,8 @@ class TestWRC():
             time = [40, 360, 60]
             nort_time = [40, 300, 50]
             address_to_coords_response = [
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
+                '[{"city":"Test1","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
+                '[{"city":"Test2","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
             ]
             m.get(self.address_req, [{'text': address_to_coords_response[0]}, {'text': address_to_coords_response[1]}])
             route = wrc.WazeRouteCalculator("", "")
@@ -248,8 +260,8 @@ class TestWRC():
             length = [400, 5000, 500]
             time = [45, 300, 60]
             address_to_coords_response = [
-                '[{"location":{"lat":%s,"lon":%s},"bounds":null}]' % (lat[0], lon[0]),
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
+                '[{"city":"Test1","location":{"lat":%s,"lon":%s},"bounds":null}]' % (lat[0], lon[0]),
+                '[{"city":"Test2","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
             ]
             m.get(self.address_req, [{'text': address_to_coords_response[0]}, {'text': address_to_coords_response[1]}])
             route = wrc.WazeRouteCalculator("", "")
@@ -272,8 +284,8 @@ class TestWRC():
             length = [400, [5000, 5100, 4500], 500]
             time = [40, [300, 330, 345], 50]
             address_to_coords_response = [
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
-                '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
+                '[{"city":"Test1","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[0], lon[0], str(bounds[0]).replace("'", '"')),
+                '[{"city":"Test2","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (lat[2], lon[2], str(bounds[2]).replace("'", '"'))
             ]
             m.get(self.address_req, [{'text': address_to_coords_response[0]}, {'text': address_to_coords_response[1]}])
             route = wrc.WazeRouteCalculator("", "")
