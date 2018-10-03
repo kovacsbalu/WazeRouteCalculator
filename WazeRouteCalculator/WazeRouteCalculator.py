@@ -3,7 +3,7 @@
 
 import logging
 import requests
-
+import re
 
 class WRCError(Exception):
     def __init__(self, message):
@@ -36,10 +36,39 @@ class WazeRouteCalculator(object):
             region = 'US'
         self.region = region
 
-        self.start_coords = self.address_to_coords(start_address)
+        
+        if self.already_coords(start_address): #See if we have coordinates or address to resolve
+            self.start_coords = self.coords_string_parser(start_address)
+        else:
+            self.start_coords = self.address_to_coords(start_address)
+
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
-        self.end_coords = self.address_to_coords(end_address)
+
+        
+        if self.already_coords(end_address): #See if we have coordinates or address to resolve
+            self.end_coords = self.coords_string_parser(end_address)
+        else:
+            self.end_coords = self.address_to_coords(end_address)
+
         self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
+
+    
+    def already_coords(self, address):
+        """test used to see if we have coordinates or address"""
+        
+        gps_match = '^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$'
+        m = re.search(gps_match, address)
+        return (m != None)
+
+    def coords_string_parser(self, coords):
+        """Pareses the address string into coordinates to match address_to_coords return object"""
+
+        lat_lon = coords.split(',')
+        lat = lat_lon[0].strip()
+        lon = lat_lon[1].strip()
+        bounds = {}
+        return {"lat": lat, "lon": lon, "bounds": bounds}
+
 
     def address_to_coords(self, address):
         """Convert address to coordinates"""
@@ -51,7 +80,7 @@ class WazeRouteCalculator(object):
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
-        get_cords = "row-SearchServer/mozi"
+        get_cords = "SearchServer/mozi"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -77,7 +106,7 @@ class WazeRouteCalculator(object):
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
 
-        routing_servers = ["row-RoutingManager/routingRequest",
+        routing_servers = ["RoutingManager/routingRequest",
                            "RoutingManager/routingRequest",
                            "il-RoutingManager/routingRequest"]
         url_options = {
