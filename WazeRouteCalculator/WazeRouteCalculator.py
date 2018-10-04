@@ -80,7 +80,7 @@ class WazeRouteCalculator(object):
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
-        get_cords = "SearchServer/mozi"
+        get_cords = "row-SearchServer/mozi"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -106,7 +106,7 @@ class WazeRouteCalculator(object):
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
 
-        routing_servers = ["RoutingManager/routingRequest",
+        routing_servers = ["row-RoutingManager/routingRequest",
                            "RoutingManager/routingRequest",
                            "il-RoutingManager/routingRequest"]
         url_options = {
