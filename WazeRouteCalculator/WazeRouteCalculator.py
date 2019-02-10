@@ -22,7 +22,7 @@ class WazeRouteCalculator(object):
         "referer": WAZE_URL,
     }
 
-    def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
+    def __init__(self, start_address, end_address, region='EU', vehicle_type='CAR', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
         if log_lvl is None:
             log_lvl = logging.WARNING
@@ -35,6 +35,11 @@ class WazeRouteCalculator(object):
         if region == 'NA':  # North America
             region = 'US'
         self.region = region
+
+        vehicle_type = vehicle_type.upper()
+        if vehicle_type == 'CAR':
+            vehicle_type = 'TAXI'
+        self.vehicle_type = vehicle_type
 
         self.start_coords = self.address_to_coords(start_address)
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
@@ -83,6 +88,7 @@ class WazeRouteCalculator(object):
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
+            "vehicleType": self.vehicle_type,
             "at": time_delta,
             "returnJSON": "true",
             "returnGeometries": "true",
