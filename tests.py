@@ -335,3 +335,21 @@ class TestWRC():
             m.get(self.address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator(from_address, to_address, log_lvl=None)
         assert route.log.getEffectiveLevel() == wrc.logging.WARNING
+
+    def test_region_change(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, region='NA')
+        assert route.region == 'US'
+
+    def test_vehicle_motor(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, vehicle_type='MOTORCYCLE')
+            route.get_route()
+        assert 'vehicletype=motorcycle' in req.last_request.query
