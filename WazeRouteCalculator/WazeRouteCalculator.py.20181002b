@@ -21,9 +21,8 @@ class WazeRouteCalculator(object):
         "User-Agent": "Mozilla/5.0",
         "referer": WAZE_URL,
     }
-    VEHICLE_TYPES = ('TAXI', 'MOTORCYCLE')
 
-    def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
+    def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
         if log_lvl is None:
             log_lvl = logging.WARNING
@@ -36,10 +35,6 @@ class WazeRouteCalculator(object):
         if region == 'NA':  # North America
             region = 'US'
         self.region = region
-
-        self.vehicle_type = ''
-        if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
-            self.vehicle_type = vehicle_type.upper()
 
         self.start_coords = self.address_to_coords(start_address)
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
@@ -56,7 +51,7 @@ class WazeRouteCalculator(object):
         BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
         # the origin of the request can make a difference in the result
 
-        get_cords = "row-SearchServer/mozi"
+        get_cords = "SearchServer/mozi"
         url_options = {
             "q": address,
             "lang": "eng",
@@ -66,18 +61,16 @@ class WazeRouteCalculator(object):
         }
 
         response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=self.HEADERS)
-        for response_json in response.json():
-            if response_json.get('city'):
-                lat = response_json['location']['lat']
-                lon = response_json['location']['lon']
-                bounds = response_json['bounds']  # sometimes the coords don't match up
-                if bounds is not None:
-                    bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
-                    bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
-                else:
-                    bounds = {}
-                return {"lat": lat, "lon": lon, "bounds": bounds}
-        raise WRCError("Cannot get coords for %s" % address)
+        response_json = response.json()[0]
+        lat = response_json['location']['lat']
+        lon = response_json['location']['lon']
+        bounds = response_json['bounds']  # sometimes the coords don't match up
+        if bounds is not None:
+            bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
+            bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
+        else:
+            bounds = {}
+        return {"lat": lat, "lon": lon, "bounds": bounds}
 
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
@@ -86,9 +79,8 @@ class WazeRouteCalculator(object):
                            "RoutingManager/routingRequest",
                            "il-RoutingManager/routingRequest"]
         url_options = {
-            "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
-            "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
-            "vehicleType": self.vehicle_type,
+            "from": "x:%sy:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
+            "to": "x:%sy:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
             "at": time_delta,
             "returnJSON": "true",
             "returnGeometries": "true",
@@ -100,6 +92,7 @@ class WazeRouteCalculator(object):
 
         for routing_srv in routing_servers:
             response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)
+            print response.request.url
             response.encoding = 'utf-8'
             response_json = self._check_response(response)
             if response_json and 'error' not in response_json:

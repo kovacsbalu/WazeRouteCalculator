@@ -21,8 +21,7 @@ import WazeRouteCalculator
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
-vehicle_type = 'CAR'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
 route.calc_route_info()
 ```
 
@@ -43,12 +42,31 @@ Time 69.27 minutes, distance 120.91 km.
 Region is used for address searching. Setting base coord parameter.
 (Removed from route server selection. Looping through all route servers.)
 
-`vehicle_type` is also optional, and defaults to "CAR". `vehicle_type` can be one of:
+### Vehicle types
 
-- CAR or TAXI
+`vehicle_type` is also optional, and defaults to "" which is private. `vehicle_type` can be one of:
+
+- TAXI
 - MOTORCYCLE
 
 Time to destination will be adjusted based on the mode of transport.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Budapest, Hungary'
+to_address = 'Gyor, Hungary'
+region = 'EU'
+vehicle_type = 'MOTORCYCLE'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route.calc_route_info()
+```
+
+```
+python example.py
+From: Budapest, Hungary - to: Gyor, Hungary
+Time 112.92 minutes, distance 124.93 km.
+```
 
 ### Multiple routes
 
@@ -60,8 +78,7 @@ import WazeRouteCalculator
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
-vehicle_type = 'CAR'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
 route.calc_all_routes_info()
 ```
 
@@ -89,8 +106,7 @@ import WazeRouteCalculator
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
-vehicle_type = 'CAR'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
 From: Budapest, Hungary - to: Gyor, Hungary
 
 route.calc_route_info(stop_at_bounds=True)
@@ -110,8 +126,7 @@ import WazeRouteCalculator
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
-vehicle_type = 'CAR'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region)
 From: Budapest, Hungary - to: Gyor, Hungary
 
 route.calc_route_info(time_delta=60)
@@ -127,8 +142,7 @@ import WazeRouteCalculator
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
-vehicle_type = 'CAR'
-route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type, log_lvl=None)
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, log_lvl=None)
 route_time, route_distance = route.calc_route_info()
 print 'Time %.2f minutes, distance %.2f km.' % (route_time, route_distance)
 ```
