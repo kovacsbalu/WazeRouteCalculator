@@ -88,7 +88,6 @@ class WazeRouteCalculator(object):
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
-            "vehicleType": self.vehicle_type,
             "at": time_delta,
             "returnJSON": "true",
             "returnGeometries": "true",
@@ -97,6 +96,8 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
+        if self.vehicle_type:
+            url_options["vehicleType"] = self.vehicle_type
 
         for routing_srv in routing_servers:
             response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)
