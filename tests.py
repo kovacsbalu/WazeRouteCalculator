@@ -57,6 +57,16 @@ class TestWRC():
                 route = wrc.WazeRouteCalculator(from_address, to_address)
                 coords = route.address_to_coords(test_address)
 
+    def test_already_coords(self):
+        from_address = '47.497912,19.040235'
+        to_address = '47.687457,17.650397'
+        with requests_mock.mock() as m:
+            addr_query = m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address)
+        assert not addr_query.called
+        assert route.start_coords["lat"] == from_address.split(",")[0]
+        assert route.end_coords["lat"] == to_address.split(",")[0]
+
     def test_get_route(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
