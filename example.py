@@ -8,4 +8,4 @@ route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address)
 try:
     route.calc_route_info()
 except WazeRouteCalculator.WRCError as err:
-    print err
+    print(err)
