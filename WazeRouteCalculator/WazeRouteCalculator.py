@@ -21,8 +21,9 @@ class WazeRouteCalculator(object):
         "User-Agent": "Mozilla/5.0",
         "referer": WAZE_URL,
     }
+    VEHICLE_TYPES = ('TAXI', 'MOTORCYCLE')
 
-    def __init__(self, start_address, end_address, region='EU', log_lvl=logging.INFO):
+    def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
         if log_lvl is None:
             log_lvl = logging.WARNING
@@ -36,7 +37,10 @@ class WazeRouteCalculator(object):
             region = 'US'
         self.region = region
 
-        
+        self.vehicle_type = ''
+        if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
+            self.vehicle_type = vehicle_type.upper()
+
         if self.already_coords(start_address): #See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
         else:
@@ -120,6 +124,8 @@ class WazeRouteCalculator(object):
             "nPaths": npaths,
             "options": "AVOID_TRAILS:t",
         }
+        if self.vehicle_type:
+            url_options["vehicleType"] = self.vehicle_type
 
         for routing_srv in routing_servers:
             response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)

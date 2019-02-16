@@ -42,6 +42,32 @@ Time 69.27 minutes, distance 120.91 km.
 Region is used for address searching. Setting base coord parameter.
 (Removed from route server selection. Looping through all route servers.)
 
+### Vehicle types
+
+`vehicle_type` is also optional, and defaults to "" which is private. `vehicle_type` can be one of:
+
+- TAXI
+- MOTORCYCLE
+
+Time to destination will be adjusted based on the mode of transport.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Budapest, Hungary'
+to_address = 'Gyor, Hungary'
+region = 'EU'
+vehicle_type = 'MOTORCYCLE'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, vehicle_type)
+route.calc_route_info()
+```
+
+```
+python example.py
+From: Budapest, Hungary - to: Gyor, Hungary
+Time 112.92 minutes, distance 124.93 km.
+```
+
 ### Multiple routes
 
 You can get multiple routes using the `route.calc_all_routes_info()` function:
@@ -91,7 +117,7 @@ Time 72.42 minutes, distance 121.33 km.
 ```
 
 ### Leave at
-You can pass `time_delta=<int>` to `calc_route_info` or `calc_all_routes_info` to set the leave time from now. The value is between 0 (now - default) and 1440. 
+You can pass `time_delta=<int>` to `calc_route_info` or `calc_all_routes_info` to set the leave time from now. The value is between 0 (now - default) and 1440.
 The following example shows route info from now + 60 minute.
 
 ```python
