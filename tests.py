@@ -349,8 +349,9 @@ class TestWRC():
     def test_region_change(self):
         from_address = 'From address'
         to_address = 'To address'
+        address_req = self.waze_url + "SearchServer/mozi"
         with requests_mock.mock() as m:
-            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator(from_address, to_address, region='NA')
         assert route.region == 'US'
 

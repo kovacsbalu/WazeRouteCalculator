@@ -22,6 +22,18 @@ class WazeRouteCalculator(object):
         "referer": WAZE_URL,
     }
     VEHICLE_TYPES = ('TAXI', 'MOTORCYCLE')
+    BASE_COORDS = {
+        'US': {"lat": 40.713, "lon": -74.006},
+        'EU': {"lat": 47.498, "lon": 19.040},
+        'IL': {"lat": 31.768, "lon": 35.214},
+        'AU': {"lat": -35.281, "lon": 149.128}
+    }
+    COORD_SERVERS = {
+        'US': 'SearchServer/mozi',
+        'EU': 'row-SearchServer/mozi',
+        'IL': 'il-SearchServer/mozi',
+        'AU': 'row-SearchServer/mozi'
+    }
     COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
     def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
@@ -70,23 +82,17 @@ class WazeRouteCalculator(object):
     def address_to_coords(self, address):
         """Convert address to coordinates"""
 
-        EU_BASE_COORDS = {"lat": 47.498, "lon": 19.040}
-        US_BASE_COORDS = {"lat": 40.713, "lon": -74.006}
-        IL_BASE_COORDS = {"lat": 31.768, "lon": 35.214}
-        AU_BASE_COORDS = {"lat": -35.281, "lon": 149.128}
-        BASE_COORDS = dict(US=US_BASE_COORDS, EU=EU_BASE_COORDS, IL=IL_BASE_COORDS, AU=AU_BASE_COORDS)[self.region]
-        # the origin of the request can make a difference in the result
-
-        get_cords = "row-SearchServer/mozi"
+        base_coords = self.BASE_COORDS[self.region]
+        get_cord = self.COORD_SERVERS[self.region]
         url_options = {
             "q": address,
             "lang": "eng",
             "origin": "livemap",
-            "lat": BASE_COORDS["lat"],
-            "lon": BASE_COORDS["lon"]
+            "lat": base_coords["lat"],
+            "lon": base_coords["lon"]
         }
 
-        response = requests.get(self.WAZE_URL + get_cords, params=url_options, headers=self.HEADERS)
+        response = requests.get(self.WAZE_URL + get_cord, params=url_options, headers=self.HEADERS)
         for response_json in response.json():
             if response_json.get('city'):
                 lat = response_json['location']['lat']
