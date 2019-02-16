@@ -22,6 +22,7 @@ class WazeRouteCalculator(object):
         "referer": WAZE_URL,
     }
     VEHICLE_TYPES = ('TAXI', 'MOTORCYCLE')
+    COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
     def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
         self.log = logging.getLogger(__name__)
@@ -45,34 +46,26 @@ class WazeRouteCalculator(object):
             self.start_coords = self.coords_string_parser(start_address)
         else:
             self.start_coords = self.address_to_coords(start_address)
-
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
 
-        
         if self.already_coords(end_address): #See if we have coordinates or address to resolve
             self.end_coords = self.coords_string_parser(end_address)
         else:
             self.end_coords = self.address_to_coords(end_address)
-
         self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
 
-    
+
     def already_coords(self, address):
         """test used to see if we have coordinates or address"""
-        
-        gps_match = '^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$'
-        m = re.search(gps_match, address)
+
+        m = re.search(self.COORD_MATCH, address)
         return (m != None)
 
     def coords_string_parser(self, coords):
         """Pareses the address string into coordinates to match address_to_coords return object"""
 
-        lat_lon = coords.split(',')
-        lat = lat_lon[0].strip()
-        lon = lat_lon[1].strip()
-        bounds = {}
-        return {"lat": lat, "lon": lon, "bounds": bounds}
-
+        lat, lon = coords.split(',')
+        return {"lat": lat.strip(), "lon": lon.strip(), "bounds": {}}
 
     def address_to_coords(self, address):
         """Convert address to coordinates"""
