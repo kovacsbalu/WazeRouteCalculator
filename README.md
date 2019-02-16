@@ -33,7 +33,8 @@ Time 69.27 minutes, distance 120.91 km.
 
 `calc_route_info` returns a tuple `(route_time, route_distance)` in addition to logging.
 
-`from_address` and `to_address` are required. `region` is optional, and defaults to "EU". `region` can be one of:
+`from_address` and `to_address` are required. The address can also be coordinates.
+`region` is optional, and defaults to "EU". `region` can be one of:
 
 - EU (Europe)
 - US or NA (North America)
