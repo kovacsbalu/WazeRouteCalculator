@@ -144,7 +144,7 @@ class WazeRouteCalculator(object):
                     return [response_json['response']]
                 return response_json['response']
         else:
-            raise WRCError("Empty Response")
+            raise WRCError("empty response")
 
     @staticmethod
     def _check_response(response):
