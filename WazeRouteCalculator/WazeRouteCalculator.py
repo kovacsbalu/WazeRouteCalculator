@@ -34,6 +34,12 @@ class WazeRouteCalculator(object):
         'IL': 'il-SearchServer/mozi',
         'AU': 'row-SearchServer/mozi'
     }
+    ROUTING_SERVERS = {
+        'US': 'RoutingManager/routingRequest',
+        'EU': 'row-RoutingManager/routingRequest',
+        'IL': 'il-RoutingManager/routingRequest',
+        'AU': 'row-RoutingManager/routingRequest' 
+    }
     COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
     def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
@@ -109,9 +115,8 @@ class WazeRouteCalculator(object):
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
 
-        routing_servers = ["row-RoutingManager/routingRequest",
-                           "RoutingManager/routingRequest",
-                           "il-RoutingManager/routingRequest"]
+        routing_server = self.ROUTING_SERVERS[self.region]
+
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
             "to": "x:%s y:%s" % (self.end_coords["lon"], self.end_coords["lat"]),
@@ -126,18 +131,18 @@ class WazeRouteCalculator(object):
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
 
-        for routing_srv in routing_servers:
-            response = requests.get(self.WAZE_URL + routing_srv, params=url_options, headers=self.HEADERS)
-            response.encoding = 'utf-8'
-            response_json = self._check_response(response)
-            if response_json and 'error' not in response_json:
+        response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
+        response.encoding = 'utf-8'
+        response_json = self._check_response(response)
+        if response_json:
+            if 'error' in response_json:
+                raise WRCError(response_json.get("error"))
+            else:
                 if response_json.get("alternatives"):
                     return [alt['response'] for alt in response_json['alternatives']]
                 if npaths > 1:
                     return [response_json['response']]
                 return response_json['response']
-        if response_json and 'error' not in response_json:
-            raise WRCError(response_json.get("error"))
         else:
             raise WRCError("empty response")
 

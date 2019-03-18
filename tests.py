@@ -77,9 +77,9 @@ class TestWRC():
         assert self.routing_req in m.request_history[2].url
 
     def test_get_route_next_server(self):
-        fail_routing_req = self.waze_url + "row-RoutingManager/routingRequest"
+        fail_routing_req = self.waze_url + "RoutingManager/routingRequest"
         fail_routing_response = '{}'
-        ok_routing_req = self.waze_url + "RoutingManager/routingRequest"
+        ok_routing_req = self.waze_url + "row-RoutingManager/routingRequest"
         ok_routing_response = '{"response":{"results":[{"length":%s,"crossTime":%s}]}}' % (self.length, self.time)
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
