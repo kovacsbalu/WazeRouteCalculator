@@ -56,22 +56,31 @@ class WazeRouteCalculator(object):
             region = 'US'
         self.region = region
 
+        if region is 'US':
+            units = 'mi'
+        else:
+            units = 'km'
+        self.units = units
+
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
 
-        if self.already_coords(start_address): #See if we have coordinates or address to resolve
+        # See if we have coordinates or address to resolve
+        if self.already_coords(start_address):
             self.start_coords = self.coords_string_parser(start_address)
         else:
             self.start_coords = self.address_to_coords(start_address)
-        self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
+        self.log.debug('Start coords: (%s, %s)',
+                       self.start_coords["lat"], self.start_coords["lon"])
 
-        if self.already_coords(end_address): #See if we have coordinates or address to resolve
+        # See if we have coordinates or address to resolve
+        if self.already_coords(end_address):
             self.end_coords = self.coords_string_parser(end_address)
         else:
             self.end_coords = self.address_to_coords(end_address)
-        self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
-
+        self.log.debug('End coords: (%s, %s)',
+                       self.end_coords["lat"], self.end_coords["lon"])
 
     def already_coords(self, address):
         """test used to see if we have coordinates or address"""
@@ -98,15 +107,19 @@ class WazeRouteCalculator(object):
             "lon": base_coords["lon"]
         }
 
-        response = requests.get(self.WAZE_URL + get_cord, params=url_options, headers=self.HEADERS)
+        response = requests.get(self.WAZE_URL + get_cord,
+                                params=url_options, headers=self.HEADERS)
         for response_json in response.json():
             if response_json.get('city'):
                 lat = response_json['location']['lat']
                 lon = response_json['location']['lon']
-                bounds = response_json['bounds']  # sometimes the coords don't match up
+                # sometimes the coords don't match up
+                bounds = response_json['bounds']
                 if bounds is not None:
-                    bounds['top'], bounds['bottom'] = max(bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
-                    bounds['left'], bounds['right'] = min(bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
+                    bounds['top'], bounds['bottom'] = max(
+                        bounds['top'], bounds['bottom']), min(bounds['top'], bounds['bottom'])
+                    bounds['left'], bounds['right'] = min(
+                        bounds['left'], bounds['right']), max(bounds['left'], bounds['right'])
                 else:
                     bounds = {}
                 return {"lat": lat, "lon": lon, "bounds": bounds}
@@ -131,7 +144,8 @@ class WazeRouteCalculator(object):
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
 
-        response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
+        response = requests.get(
+            self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
         response.encoding = 'utf-8'
         response_json = self._check_response(response)
         if response_json:
@@ -171,11 +185,13 @@ class WazeRouteCalculator(object):
                 x = segment['path']['x']
                 y = segment['path']['y']
                 if (
-                    between(x, start_bounds.get('left', 0), start_bounds.get('right', 0)) or
-                    between(x, end_bounds.get('left', 0), end_bounds.get('right', 0))
+                    between(x, start_bounds.get('left', 0),
+                            start_bounds.get('right', 0))
+                    or between(x, end_bounds.get('left', 0), end_bounds.get('right', 0))
                 ) and (
-                    between(y, start_bounds.get('bottom', 0), start_bounds.get('top', 0)) or
-                    between(y, end_bounds.get('bottom', 0), end_bounds.get('top', 0))
+                    between(y, start_bounds.get('bottom', 0),
+                            start_bounds.get('top', 0))
+                    or between(y, end_bounds.get('bottom', 0), end_bounds.get('top', 0))
                 ):
                     continue
             time += segment['crossTime' if real_time else 'crossTimeWithoutRealTime']
@@ -189,16 +205,20 @@ class WazeRouteCalculator(object):
 
         route = self.get_route(1, time_delta)
         results = route['results']
-        route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds)
-        self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
-        return route_time, route_distance
+        route_time, route_distance = self._add_up_route(
+            results, real_time=real_time, stop_at_bounds=stop_at_bounds)
+        self.log.info('Time %.2f minutes, distance %.2f %s.',
+                      route_time, route_distance, self.units)
+        return route_time, route_distance, self.units
 
     def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False, time_delta=0):
         """Calculate all route infos."""
 
         routes = self.get_route(npaths, time_delta)
-        results = {route['routeName']: self._add_up_route(route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
+        results = {route['routeName']: self._add_up_route(
+            route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
-        self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
+        self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.',
+                      min(route_time), max(route_time), min(route_distance), max(route_distance))
         return results
