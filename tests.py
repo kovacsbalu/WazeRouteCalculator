@@ -23,7 +23,7 @@ class TestWRC():
     def test_address_to_coords(self):
         from_address = 'From address'
         to_address = 'To address'
-        test_address = "Testaddress"
+        test_address = 'Testaddress'
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator(from_address, to_address)
@@ -34,7 +34,7 @@ class TestWRC():
     def test_address_to_coords_reversed(self):
         from_address = 'From address'
         to_address = 'To address'
-        test_address = "Testaddress"
+        test_address = 'Testaddress'
 
         bounds = {"top": 47.4, "bottom": 47.5, "right": 19, "left": 19.3}
         address_to_coords_response = '[{"city":"Test","location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(bounds).replace("'", '"'))
@@ -49,7 +49,7 @@ class TestWRC():
     def test_address_to_coords_nocity(self):
         from_address = 'From address'
         to_address = 'To address'
-        test_address = "Testaddress"
+        test_address = 'Testaddress'
         address_to_coords_response = '[{"location":{"lat":%s,"lon":%s},"bounds":%s}]' % (self.lat, self.lon, str(self.bounds).replace("'", '"'))
         with pytest.raises(wrc.WRCError):
             with requests_mock.mock() as m:
@@ -143,10 +143,11 @@ class TestWRC():
             route = wrc.WazeRouteCalculator("", "")
         route_mock = mock.Mock(return_value={"results": [{"length": 1000, "crossTime": 120}]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info()
+        time, dist, units = route.calc_route_info()
         assert route_mock.called
         assert time == 2.00
         assert dist == 1.00
+        assert units == 'km'
 
     def test_calc_all_routes_info(self):
         with requests_mock.mock() as m:
@@ -164,10 +165,11 @@ class TestWRC():
             route = wrc.WazeRouteCalculator("", "")
         route_mock = mock.Mock(return_value={"results": [{"length": 1000, "crossTime": 140, "crossTimeWithoutRealTime": 120}]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info(real_time=False)
+        time, dist, units = route.calc_route_info(real_time=False)
         assert route_mock.called
         assert time == 2.00
         assert dist == 1.00
+        assert units == 'km'
 
     def test_calc_all_routes_info_nort(self):
         with requests_mock.mock() as m:
@@ -208,10 +210,11 @@ class TestWRC():
             {"length": length[2], "crossTime": time[2], "path": {"x": lon[2], "y": lat[2]}}
         ]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info()
+        time, dist, units = route.calc_route_info()
         assert route_mock.called
         assert time == 6.5
         assert dist == 5.9
+        assert units == 'km'
 
     def test_calc_route_info_with_ignored(self):
         with requests_mock.mock() as m:
@@ -232,10 +235,11 @@ class TestWRC():
             {"length": length[2], "crossTime": time[2], "path": {"x": lon[2], "y": lat[2]}}
         ]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info(stop_at_bounds=True)
+        time, dist, units = route.calc_route_info(stop_at_bounds=True)
         assert route_mock.called
         assert time == 5.00
         assert dist == 5.00
+        assert units == 'km'
 
     def test_calc_route_info_with_ignored_and_nort(self):
         with requests_mock.mock() as m:
@@ -257,7 +261,7 @@ class TestWRC():
             {"length": length[2], "crossTime": time[2], "crossTimeWithoutRealTime": nort_time[2], "path": {"x": lon[2], "y": lat[2]}}
         ]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info(stop_at_bounds=True, real_time=False)
+        time, dist, units = route.calc_route_info(stop_at_bounds=True, real_time=False)
         assert route_mock.called
         assert time == 5.00
         assert dist == 5.00
@@ -281,10 +285,11 @@ class TestWRC():
             {"length": length[2], "crossTime": time[2], "path": {"x": lon[2], "y": lat[2]}}
         ]})
         route.get_route = route_mock
-        time, dist = route.calc_route_info(stop_at_bounds=True)
+        time, dist, units = route.calc_route_info(stop_at_bounds=True)
         assert route_mock.called
         assert time == 5.75
         assert dist == 5.40
+        assert units == 'km'
 
     def test_calc_all_routes_info_with_ignored(self):
         with requests_mock.mock() as m:
@@ -333,10 +338,11 @@ class TestWRC():
             m.get(self.address_req, text=self.address_to_coords_response)
             m.get(self.routing_req, text=self.routing_response)
             route = wrc.WazeRouteCalculator(from_address, to_address)
-            time, dist = route.calc_route_info()
+            time, dist, units = route.calc_route_info()
         assert len(self.url_mock.call_args_list) == 3
         assert time == 1.00
         assert dist == 0.40
+        assert units == 'km'
 
     def test_silent_logging(self):
         from_address = 'From address'
