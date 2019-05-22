@@ -28,7 +28,7 @@ route.calc_route_info()
 ```
 python example.py
 From: Budapest, Hungary - to: Gyor, Hungary
-Time 69.27 minutes, distance 120.91 km.
+Time 69.27 min, distance 120.91 km.
 ```
 
 `calc_route_info` returns a tuple `(route_time, route_distance)` in addition to logging.
@@ -66,7 +66,7 @@ route.calc_route_info()
 ```
 python example.py
 From: Budapest, Hungary - to: Gyor, Hungary
-Time 112.92 minutes, distance 124.93 km.
+Time 112.92 min, distance 124.93 km.
 ```
 
 ### Multiple routes
@@ -86,7 +86,7 @@ route.calc_all_routes_info()
 ```
 python example.py
 From: Budapest, Hungary - to: Gyor, Hungary
-Time 74.45 - 129.43 minutes, distance 120.91 - 130.08 km.
+Time 74.45 - 129.43 min, distance 120.91 - 130.08 km.
 ```
 
 `calc_all_routes_info` takes an optional single parameter, the number of routes to fetch. Note that the Waze API may not return as many possibilities as requested. The function returns a dict: `{'route_name1': (route_time1, route_distance1), 'route_name2': (route_time2, route_distance2), ...}`.
@@ -111,10 +111,10 @@ route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region
 From: Budapest, Hungary - to: Gyor, Hungary
 
 route.calc_route_info(stop_at_bounds=True)
-Time 46.27 minutes, distance 95.29 km.
+Time 46.27 min, distance 95.29 km.
 
 route.calc_route_info()
-Time 72.42 minutes, distance 121.33 km.
+Time 72.42 min, distance 121.33 km.
 ```
 
 ### Leave at
@@ -131,7 +131,7 @@ route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region
 From: Budapest, Hungary - to: Gyor, Hungary
 
 route.calc_route_info(time_delta=60)
-Time 73.33 minutes, distance 120.92 km.
+Time 73.33 min, distance 120.92 km.
 ```
 
 ### Silence logging
@@ -145,5 +145,8 @@ to_address = 'Gyor, Hungary'
 region = 'EU'
 route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, log_lvl=None)
 route_time, route_distance = route.calc_route_info()
-print 'Time %.2f minutes, distance %.2f km.' % (route_time, route_distance)
+print 'Time %.2f min, distance %.2f km.' % (route_time, route_distance)
 ```
+
+### Unit conversion
+`time_unit` and `dist_unit` can be passed as optional parameters to the `calc_route_info` and `calc_all_routes_info` functions. The defaults are `min` for `time_unit` and `km` for `dist_unit` but other sensible unit types can be passed. For an explicit list, refer to [this page](https://github.com/hgrecco/pint/blob/master/pint/default_en.txt)
