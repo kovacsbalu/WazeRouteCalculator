@@ -374,3 +374,63 @@ class TestWRC():
             route = wrc.WazeRouteCalculator(from_address, to_address)
             route.get_route()
         assert 'vehicletype' not in req.last_request.query
+
+    def test_avoid_toll_road_true(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_toll_roads=True)
+            route.get_route()
+        assert 'avoid_toll_roads' in req.last_request.query
+
+    def test_avoid_toll_road_false(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_toll_roads=False)
+            route.get_route()
+        assert 'avoid_toll_roads' not in req.last_request.query
+
+    def test_avoid_toll_road_not_changed(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_toll_roads=False)
+            route.get_route()
+        assert 'avoid_toll_roads' not in req.last_request.query
+
+    def test_avoid_ferries_true(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_ferries=True)
+            route.get_route()
+        assert 'avoid_ferries' in req.last_request.query
+
+    def test_avoid_ferries_false(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_ferries=False)
+            route.get_route()
+        assert 'avoid_ferries' not in req.last_request.query
+
+    def test_avoid_ferries_not_changed(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            req = m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_ferries=False)
+            route.get_route()
+        assert 'avoid_ferries' not in req.last_request.query
