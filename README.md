@@ -69,6 +69,38 @@ From: Budapest, Hungary - to: Gyor, Hungary
 Time 112.92 minutes, distance 124.93 km.
 ```
 
+### Avoid toll roads
+
+`avoid_toll_roads` is also optional, and defaults to False. Setting `avoid_toll_roads` to True
+will only return results not on a tollway.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Chicago, Illinois'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_toll_roads=True)
+route.calc_route_info()
+```
+
+### Avoid ferries
+
+`avoid_ferries` is also optional, and defaults to False. Setting `avoid_ferries` to True
+will only return results not involving a ferry.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Long Branch, New Jersey'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_ferries=True)
+route.calc_route_info()
+```
+
+
+
 ### Multiple routes
 
 You can get multiple routes using the `route.calc_all_routes_info()` function:
