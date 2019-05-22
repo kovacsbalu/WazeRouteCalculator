@@ -4,6 +4,7 @@
 import logging
 import requests
 import re
+from pint import UnitRegistry
 
 class WRCError(Exception):
     def __init__(self, message):
@@ -72,6 +73,7 @@ class WazeRouteCalculator(object):
             self.end_coords = self.address_to_coords(end_address)
         self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
 
+        self.ureg = UnitRegistry()
 
     def already_coords(self, address):
         """test used to see if we have coordinates or address"""
@@ -155,7 +157,7 @@ class WazeRouteCalculator(object):
             except ValueError:
                 return None
 
-    def _add_up_route(self, results, real_time=True, stop_at_bounds=False):
+    def _add_up_route(self, results, real_time=True, stop_at_bounds=False, time_unit='min', dist_unit='km'):
         """Calculate route time and distance."""
 
         start_bounds = self.start_coords['bounds']
@@ -180,25 +182,38 @@ class WazeRouteCalculator(object):
                     continue
             time += segment['crossTime' if real_time else 'crossTimeWithoutRealTime']
             distance += segment['length']
-        route_time = time / 60.0
-        route_distance = distance / 1000.0
+        route_time = self.ureg.Quantity(time * self.ureg.sec).to(time_unit)
+        route_distance = self.ureg.Quantity(distance * self.ureg.m).to(dist_unit)
         return route_time, route_distance
 
-    def calc_route_info(self, real_time=True, stop_at_bounds=False, time_delta=0):
+    def calc_route_info(self, real_time=True, stop_at_bounds=False, time_delta=0, time_unit='min', dist_unit='km'):
         """Calculate best route info."""
 
         route = self.get_route(1, time_delta)
         results = route['results']
-        route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds)
-        self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
-        return route_time, route_distance
+        if results:
+            route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds, time_unit=time_unit, dist_unit=dist_unit)
+            self.log.info('Time {0:.2f} {1:~}, distance {2:.2f} {3:~}.'.format(route_time.magnitude, route_time.units, route_distance.magnitude, route_distance.units))
+            return route_time.magnitude, route_distance.magnitude
+        else:
+            self.log.info("No routes found")
+            return False, False
 
-    def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False, time_delta=0):
+    def calc_all_routes_info(self, npaths=3, real_time=True, stop_at_bounds=False, time_delta=0, time_unit='min', dist_unit='km'):
         """Calculate all route infos."""
 
         routes = self.get_route(npaths, time_delta)
-        results = {route['routeName']: self._add_up_route(route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
-        route_time = [route[0] for route in results.values()]
-        route_distance = [route[1] for route in results.values()]
-        self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
-        return results
+        if routes:
+            results = {}
+            for route in routes:
+                route_time, route_distance = self._add_up_route(route['results'], real_time=real_time, stop_at_bounds=stop_at_bounds, time_unit=time_unit, dist_unit=dist_unit)
+                results[route['routeName']] = (route_time.magnitude, route_distance.magnitude)
+                time_unit = route_time.units
+                distance_unit = route_distance.units
+            route_time_list = [route[0] for route in results.values()]
+            route_distance_list = [route[1] for route in results.values()]
+            self.log.info('Time {0:.2f} - {1:.2f} {2:~}, distance {3:.2f} - {4:.2f} {5:~}.'.format(min(route_time_list), max(route_time_list), time_unit, min(route_distance_list), max(route_distance_list), distance_unit))
+            return results
+        else:
+            self.log.info('No routes found')
+            return False
