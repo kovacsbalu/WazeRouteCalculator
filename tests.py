@@ -441,7 +441,7 @@ class TestWRC():
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             req = m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_toll_roads=True)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_subscription_roads=True)
             route.get_route()
         assert 'subscription' not in req.last_request.query
 
@@ -451,6 +451,6 @@ class TestWRC():
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             req = m.get(self.routing_req, text=self.routing_response)
-            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_toll_roads=False)
+            route = wrc.WazeRouteCalculator(from_address, to_address, avoid_subscription_roads=False)
             route.get_route()
         assert 'subscription' in req.last_request.query
