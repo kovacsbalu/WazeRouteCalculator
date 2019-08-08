@@ -84,6 +84,21 @@ route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region
 route.calc_route_info()
 ```
 
+### Avoid subscription roads (vignette system)
+
+`avoid_ferries` is also optional, and defaults to False. Setting `avoid_ferries` to True
+will only return results not involving a ferry.
+
+```python
+import WazeRouteCalculator
+
+from_address = 'Long Branch, New Jersey'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_subscription_roads=True)
+route.calc_route_info()
+```
+
 ### Avoid ferries
 
 `avoid_ferries` is also optional, and defaults to False. Setting `avoid_ferries` to True
@@ -98,8 +113,6 @@ region = 'US'
 route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_ferries=True)
 route.calc_route_info()
 ```
-
-
 
 ### Multiple routes
 
