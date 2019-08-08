@@ -435,7 +435,7 @@ class TestWRC():
             route.get_route()
         assert 'avoid_ferries' not in req.last_request.query
     
-    def test_avoid_toll_road_true_vignette(self):
+    def test_avoid_subscription_road_true(self):
         from_address = 'From address'
         to_address = 'To address'
         with requests_mock.mock() as m:
@@ -445,7 +445,7 @@ class TestWRC():
             route.get_route()
         assert 'subscription' not in req.last_request.query
 
-    def test_avoid_toll_road_false_vignette(self):
+    def test_avoid_subscription_road_false(self):
         from_address = 'From address'
         to_address = 'To address'
         with requests_mock.mock() as m:
