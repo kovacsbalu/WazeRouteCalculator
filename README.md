@@ -86,8 +86,8 @@ route.calc_route_info()
 
 ### Avoid subscription roads (vignette system)
 
-`avoid_ferries` is also optional, and defaults to False. Setting `avoid_ferries` to True
-will only return results not involving a ferry.
+`avoid_subscription_roads` is also optional, and defaults to False. Setting `avoid_subscription_roads` to True
+will only return results not involving a subscription road (toll roads in coutries that use vignettes).
 
 ```python
 import WazeRouteCalculator
