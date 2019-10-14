@@ -5,6 +5,7 @@ import logging
 import requests
 import re
 
+
 class WRCError(Exception):
     def __init__(self, message):
         self.message = message
@@ -42,13 +43,9 @@ class WazeRouteCalculator(object):
     }
     COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
-    def __init__(self, start_address, end_address, region='EU', vehicle_type='', log_lvl=logging.INFO):
+    def __init__(self, start_address, end_address, region='EU', vehicle_type=''):
         self.log = logging.getLogger(__name__)
-        if log_lvl is None:
-            log_lvl = logging.WARNING
-        self.log.setLevel(log_lvl)
-        if not len(self.log.handlers):
-            self.log.addHandler(logging.StreamHandler())
+        self.log.addHandler(logging.NullHandler())
         self.log.info("From: %s - to: %s", start_address, end_address)
 
         region = region.upper()
