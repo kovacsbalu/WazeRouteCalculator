@@ -343,7 +343,7 @@ class TestWRC():
         to_address = 'To address'
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
-            route = wrc.WazeRouteCalculator(from_address, to_address, log_lvl=None)
+            route = wrc.WazeRouteCalculator(from_address, to_address)
         assert route.log.getEffectiveLevel() == wrc.logging.WARNING
 
     def test_region_change(self):
