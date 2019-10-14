@@ -18,6 +18,11 @@ Tested on Python 2.7 and 3.5, 3.6, 3.7
 ```python
 import WazeRouteCalculator
 
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
@@ -55,6 +60,11 @@ Time to destination will be adjusted based on the mode of transport.
 ```python
 import WazeRouteCalculator
 
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
@@ -69,12 +79,77 @@ From: Budapest, Hungary - to: Gyor, Hungary
 Time 112.92 minutes, distance 124.93 km.
 ```
 
+### Avoid toll roads
+
+`avoid_toll_roads` is also optional, and defaults to False. Setting `avoid_toll_roads` to True
+will only return results not on a tollway.
+
+```python
+import WazeRouteCalculator
+
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
+from_address = 'Chicago, Illinois'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_toll_roads=True)
+route.calc_route_info()
+```
+
+### Avoid subscription roads (vignette system)
+
+`avoid_subscription_roads` is also optional, and defaults to False. Setting `avoid_subscription_roads` to True
+will only return results not involving a subscription road (toll roads in coutries that use vignettes).
+
+```python
+import WazeRouteCalculator
+
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
+from_address = 'Long Branch, New Jersey'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_subscription_roads=True)
+route.calc_route_info()
+```
+
+### Avoid ferries
+
+`avoid_ferries` is also optional, and defaults to False. Setting `avoid_ferries` to True
+will only return results not involving a ferry.
+
+```python
+import WazeRouteCalculator
+
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
+from_address = 'Long Branch, New Jersey'
+to_address = 'New York City, New York'
+region = 'US'
+route = WazeRouteCalculator.WazeRouteCalculator(from_address, to_address, region, avoid_ferries=True)
+route.calc_route_info()
+```
+
 ### Multiple routes
 
 You can get multiple routes using the `route.calc_all_routes_info()` function:
 
 ```python
 import WazeRouteCalculator
+
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
 
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
@@ -104,6 +179,11 @@ You can pass `stop_at_bounds=True` to `calc_route_info` or `calc_all_routes_info
 ```python
 import WazeRouteCalculator
 
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
@@ -124,6 +204,11 @@ The following example shows route info from now + 60 minute.
 ```python
 import WazeRouteCalculator
 
+logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
 from_address = 'Budapest, Hungary'
 to_address = 'Gyor, Hungary'
 region = 'EU'
@@ -134,8 +219,7 @@ route.calc_route_info(time_delta=60)
 Time 73.33 minutes, distance 120.92 km.
 ```
 
-### Silence logging
-Pass `log_lvl=None` to silence output and just get the return value:
+### No logging
 
 ```python
 import WazeRouteCalculator

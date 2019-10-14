@@ -43,9 +43,11 @@ class WazeRouteCalculator(object):
     }
     COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
-    def __init__(self, start_address, end_address, region='EU', vehicle_type=''):
+    def __init__(self, start_address, end_address, region='EU', vehicle_type='', avoid_toll_roads=False, avoid_subscription_roads=False, avoid_ferries=False, log_lvl=None):
         self.log = logging.getLogger(__name__)
         self.log.addHandler(logging.NullHandler())
+        if log_lvl:
+            self.log.warning("log_lvl is deprecated please check example.py ")
         self.log.info("From: %s - to: %s", start_address, end_address)
 
         region = region.upper()
@@ -56,6 +58,14 @@ class WazeRouteCalculator(object):
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
+
+        self.route_options = ['AVOID_TRAILS']
+        if avoid_toll_roads:
+            self.route_options.append('AVOID_TOLL_ROADS')
+        if avoid_subscription_roads:
+            self.route_options.append('AVOID_SUBSCRIPTION_ROADS')            
+        if avoid_ferries:
+            self.route_options.append('AVOID_FERRIES')
 
         if self.already_coords(start_address): #See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
@@ -123,11 +133,14 @@ class WazeRouteCalculator(object):
             "returnInstructions": "true",
             "timeout": 60000,
             "nPaths": npaths,
-            "options": "AVOID_TRAILS:t",
+            "options": ','.join('%s:t' % route_option for route_option in self.route_options),
         }
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
-
+        # Handle vignette system in Europe
+        if 'AVOID_SUBSCRIPTION_ROADS' not in self.route_options:
+            url_options["subscription"] = "*"
+            
         response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
         response.encoding = 'utf-8'
         response_json = self._check_response(response)
