@@ -39,9 +39,9 @@ class WazeRouteCalculator(object):
         'US': 'RoutingManager/routingRequest',
         'EU': 'row-RoutingManager/routingRequest',
         'IL': 'il-RoutingManager/routingRequest',
-        'AU': 'row-RoutingManager/routingRequest' 
+        'AU': 'row-RoutingManager/routingRequest'
     }
-    COORD_MATCH = re.compile('^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
+    COORD_MATCH = re.compile(r'^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
     def __init__(self, start_address, end_address, region='EU', vehicle_type='', avoid_toll_roads=False, avoid_subscription_roads=False, avoid_ferries=False, log_lvl=None):
         self.log = logging.getLogger(__name__)
@@ -63,28 +63,27 @@ class WazeRouteCalculator(object):
         if avoid_toll_roads:
             self.route_options.append('AVOID_TOLL_ROADS')
         if avoid_subscription_roads:
-            self.route_options.append('AVOID_SUBSCRIPTION_ROADS')            
+            self.route_options.append('AVOID_SUBSCRIPTION_ROADS')
         if avoid_ferries:
             self.route_options.append('AVOID_FERRIES')
 
-        if self.already_coords(start_address): #See if we have coordinates or address to resolve
+        if self.already_coords(start_address):  # See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
         else:
             self.start_coords = self.address_to_coords(start_address)
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
 
-        if self.already_coords(end_address): #See if we have coordinates or address to resolve
+        if self.already_coords(end_address):  # See if we have coordinates or address to resolve
             self.end_coords = self.coords_string_parser(end_address)
         else:
             self.end_coords = self.address_to_coords(end_address)
         self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
 
-
     def already_coords(self, address):
         """test used to see if we have coordinates or address"""
 
         m = re.search(self.COORD_MATCH, address)
-        return (m != None)
+        return (m is not None)
 
     def coords_string_parser(self, coords):
         """Pareses the address string into coordinates to match address_to_coords return object"""
@@ -140,7 +139,7 @@ class WazeRouteCalculator(object):
         # Handle vignette system in Europe
         if 'AVOID_SUBSCRIPTION_ROADS' not in self.route_options:
             url_options["subscription"] = "*"
-            
+
         response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
         response.encoding = 'utf-8'
         response_json = self._check_response(response)
