@@ -59,11 +59,14 @@ class WazeRouteCalculator(object):
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
 
+        self.avoid_subscription_roads = ''
+        if not avoid_subscription_roads:
+            self.avoid_subscription_roads = avoid_subscription_roads
+
         self.route_options = ['AVOID_TRAILS']
         if avoid_toll_roads:
             self.route_options.append('AVOID_TOLL_ROADS')
-        if avoid_subscription_roads:
-            self.route_options.append('AVOID_SUBSCRIPTION_ROADS')
+                                                                 
         if avoid_ferries:
             self.route_options.append('AVOID_FERRIES')
 
@@ -136,8 +139,8 @@ class WazeRouteCalculator(object):
         }
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
-        # Handle vignette system in Europe
-        if 'AVOID_SUBSCRIPTION_ROADS' not in self.route_options:
+        # Handle vignette system in Europe. Defaults to false (show all routes)
+        if self.avoid_subscription_roads is False:
             url_options["subscription"] = "*"
 
         response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
