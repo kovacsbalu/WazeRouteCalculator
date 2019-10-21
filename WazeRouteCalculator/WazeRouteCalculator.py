@@ -49,33 +49,24 @@ class WazeRouteCalculator(object):
         if log_lvl:
             self.log.warning("log_lvl is deprecated please check example.py ")
         self.log.info("From: %s - to: %s", start_address, end_address)
-
         region = region.upper()
         if region == 'NA':  # North America
             region = 'US'
         self.region = region
-
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
-
-        self.avoid_subscription_roads = ''
-        if not avoid_subscription_roads:
-            self.avoid_subscription_roads = avoid_subscription_roads
-
         self.route_options = ['AVOID_TRAILS']
         if avoid_toll_roads:
             self.route_options.append('AVOID_TOLL_ROADS')
-                                                                 
+        self.avoid_subscription_roads = avoid_subscription_roads
         if avoid_ferries:
             self.route_options.append('AVOID_FERRIES')
-
         if self.already_coords(start_address):  # See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
         else:
             self.start_coords = self.address_to_coords(start_address)
         self.log.debug('Start coords: (%s, %s)', self.start_coords["lat"], self.start_coords["lon"])
-
         if self.already_coords(end_address):  # See if we have coordinates or address to resolve
             self.end_coords = self.coords_string_parser(end_address)
         else:
