@@ -17,6 +17,7 @@ Tested on Python 2.7 and 3.5, 3.6, 3.7
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -44,6 +45,7 @@ Time 69.27 minutes, distance 120.91 km.
 - EU (Europe)
 - US or NA (North America)
 - IL (Israel)
+- BR (Brazil)
 
 Region is used for address searching. Setting base coord parameter.
 (Removed from route server selection. Looping through all route servers.)
@@ -59,6 +61,7 @@ Time to destination will be adjusted based on the mode of transport.
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -86,6 +89,7 @@ will only return results not on a tollway.
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -106,6 +110,7 @@ will only return results not involving a subscription road (toll roads in coutri
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -126,6 +131,7 @@ will only return results not involving a ferry.
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -145,6 +151,7 @@ You can get multiple routes using the `route.calc_all_routes_info()` function:
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -178,6 +185,7 @@ You can pass `stop_at_bounds=True` to `calc_route_info` or `calc_all_routes_info
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
@@ -203,6 +211,7 @@ The following example shows route info from now + 60 minute.
 
 ```python
 import WazeRouteCalculator
+import logging
 
 logger = logging.getLogger('WazeRouteCalculator.WazeRouteCalculator')
 logger.setLevel(logging.DEBUG)
