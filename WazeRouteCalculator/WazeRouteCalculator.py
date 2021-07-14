@@ -31,7 +31,7 @@ class WazeRouteCalculator(object):
     }
     COORD_SERVERS = {
         'US': 'SearchServer/mozi',
-        'EU': 'row-SearchServer/mozi',
+        'EU': 'SearchServer/mozi',
         'IL': 'il-SearchServer/mozi',
         'AU': 'row-SearchServer/mozi'
     }
