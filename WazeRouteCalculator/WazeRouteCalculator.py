@@ -143,9 +143,12 @@ class WazeRouteCalculator(object):
             else:
                 if response_json.get("alternatives"):
                     return [alt['response'] for alt in response_json['alternatives']]
+                response_obj = response_json['response']
                 if npaths > 1:
-                    return [response_json['response']]
-                return response_json['response']
+                    return [response_obj]
+                if isinstance(response_obj, list):
+                    response_obj = response_obj[0]
+                return response_obj
         else:
             raise WRCError("empty response")
 
@@ -181,7 +184,10 @@ class WazeRouteCalculator(object):
                     between(y, end_bounds.get('bottom', 0), end_bounds.get('top', 0))
                 ):
                     continue
-            time += segment['crossTime' if real_time else 'crossTimeWithoutRealTime']
+            if 'crossTime' in segment:
+                time += segment['crossTime' if real_time else 'crossTimeWithoutRealTime']
+            else:
+                time += segment['cross_time' if real_time else 'cross_time_without_real_time']
             distance += segment['length']
         route_time = time / 60.0
         route_distance = distance / 1000.0
@@ -191,7 +197,7 @@ class WazeRouteCalculator(object):
         """Calculate best route info."""
 
         route = self.get_route(1, time_delta)
-        results = route['results']
+        results = route['results'] if 'results' in route else route['result']
         route_time, route_distance = self._add_up_route(results, real_time=real_time, stop_at_bounds=stop_at_bounds)
         self.log.info('Time %.2f minutes, distance %.2f km.', route_time, route_distance)
         return route_time, route_distance
