@@ -76,6 +76,16 @@ class TestWRC():
         assert response == {"results": [{"length": self.length, "crossTime": self.time}]}
         assert self.routing_req in m.request_history[2].url
 
+    def test_get_route_v2(self):
+        routing_response_v2 = '{"response":[{"result":[{"length":%s,"cross_time":%s}]}]}' % (self.length, self.time)
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=routing_response_v2)
+            route = wrc.WazeRouteCalculator("", "")
+            response = route.get_route()
+        assert response == {"result": [{"length": self.length, "cross_time": self.time}]}
+        assert self.routing_req in m.request_history[2].url
+
     def test_get_route_next_server(self):
         fail_routing_req = self.waze_url + "RoutingManager/routingRequest"
         fail_routing_response = '{}'
@@ -101,6 +111,17 @@ class TestWRC():
         assert response == [{"results": [{"length": self.length, "crossTime": self.time}]}, {"results": [{"length": length2, "crossTime": time2}]}]
         assert self.routing_req in m.request_history[2].url
 
+    def test_get_all_routes_v2(self):
+        length2, time2 = (410, 62)
+        self.routing_response = '{"alternatives":[{"response":{"result":[{"length":%s,"cross_time":%s}]}},{"response":{"result":[{"length":%s,"cross_time":%s}]}}]}' % (self.length, self.time, length2, time2)
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            m.get(self.routing_req, text=self.routing_response)
+            route = wrc.WazeRouteCalculator("", "")
+            response = route.get_route(3)
+        assert response == [{"result": [{"length": self.length, "cross_time": self.time}]}, {"result": [{"length": length2, "cross_time": time2}]}]
+        assert self.routing_req in m.request_history[2].url
+
     def test_get_route_only_one(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
@@ -119,11 +140,29 @@ class TestWRC():
         assert time == 4.00
         assert dist == 2.00
 
+    def test_add_up_route_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        results = [{"length": 1000, "cross_time": 120}, {"length": 1000, "cross_time": 120}]
+        time, dist = route._add_up_route(results)
+        assert time == 4.00
+        assert dist == 2.00
+
     def test_add_up_route_real_time(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator("", "")
         results = [{"length": 1000, "crossTime": 120, "crossTimeWithoutRealTime": 110}, {"length": 1000, "crossTime": 120, "crossTimeWithoutRealTime": 115}]
+        time, dist = route._add_up_route(results, real_time=True)
+        assert time == 4.00
+        assert dist == 2.00
+
+    def test_add_up_route_real_time_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        results = [{"length": 1000, "cross_time": 120, "cross_time_without_real_time": 110}, {"length": 1000, "cross_time": 120, "cross_time_without_real_time": 115}]
         time, dist = route._add_up_route(results, real_time=True)
         assert time == 4.00
         assert dist == 2.00
@@ -137,11 +176,31 @@ class TestWRC():
         assert time == 3.75
         assert dist == 2.00
 
+    def test_add_up_route_no_real_time_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        results = [{"length": 1000, "crosstime": 120, "cross_time_without_real_time": 110}, {"length": 1000, "cross_time": 120, "cross_time_without_real_time": 115}]
+        time, dist = route._add_up_route(results, real_time=False)
+        assert time == 3.75
+        assert dist == 2.00
+
     def test_calc_route_info(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator("", "")
         route_mock = mock.Mock(return_value={"results": [{"length": 1000, "crossTime": 120}]})
+        route.get_route = route_mock
+        time, dist = route.calc_route_info()
+        assert route_mock.called
+        assert time == 2.00
+        assert dist == 1.00
+
+    def test_calc_route_info_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        route_mock = mock.Mock(return_value={"result": [{"length": 1000, "cross_time": 120}]})
         route.get_route = route_mock
         time, dist = route.calc_route_info()
         assert route_mock.called
@@ -158,6 +217,16 @@ class TestWRC():
         assert route_mock.called
         assert results == {"1": (2.0, 1.0), "2": (2.5, 1.1)}
 
+    def test_calc_all_routes_info_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        route_mock = mock.Mock(return_value=[{"route_name": "1", "result": [{"length": 1000, "cross_time": 120}]}, {"route_name": "2", "result": [{"length": 1100, "cross_time": 150}]}])
+        route.get_route = route_mock
+        results = route.calc_all_routes_info()
+        assert route_mock.called
+        assert results == {"1": (2.0, 1.0), "2": (2.5, 1.1)}
+
     def test_calc_route_info_nort(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
@@ -169,11 +238,32 @@ class TestWRC():
         assert time == 2.00
         assert dist == 1.00
 
+    def test_calc_route_info_nort_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        route_mock = mock.Mock(return_value={"result": [{"length": 1000, "cross_Time": 140, "cross_time_without_real_time": 120}]})
+        route.get_route = route_mock
+        time, dist = route.calc_route_info(real_time=False)
+        assert route_mock.called
+        assert time == 2.00
+        assert dist == 1.00
+
     def test_calc_all_routes_info_nort(self):
         with requests_mock.mock() as m:
             m.get(self.address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator("", "")
         route_mock = mock.Mock(return_value=[{"routeName": "1", "results": [{"length": 1000, "crossTime": 130, "crossTimeWithoutRealTime": 120}]}, {"routeName": "2", "results": [{"length": 1100, "crossTime": 150, "crossTimeWithoutRealTime": 120}]}])
+        route.get_route = route_mock
+        results = route.calc_all_routes_info(real_time=False)
+        assert route_mock.called
+        assert results == {"1": (2.0, 1.0), "2": (2.0, 1.1)}
+
+    def test_calc_all_routes_info_nort_v2(self):
+        with requests_mock.mock() as m:
+            m.get(self.address_req, text=self.address_to_coords_response)
+            route = wrc.WazeRouteCalculator("", "")
+        route_mock = mock.Mock(return_value=[{"route_name": "1", "result": [{"length": 1000, "cross_time": 130, "cross_time_without_real_time": 120}]}, {"route_name": "2", "result": [{"length": 1100, "cross_time": 150, "cross_time_without_real_time": 120}]}])
         route.get_route = route_mock
         results = route.calc_all_routes_info(real_time=False)
         assert route_mock.called
