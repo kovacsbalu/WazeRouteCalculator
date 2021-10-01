@@ -2,8 +2,10 @@
 """Waze route calculator"""
 
 import logging
+import os
 import requests
 import re
+from collections import defaultdict
 
 
 class WRCError(Exception):
@@ -25,22 +27,19 @@ class WazeRouteCalculator(object):
     VEHICLE_TYPES = ('TAXI', 'MOTORCYCLE')
     BASE_COORDS = {
         'US': {"lat": 40.713, "lon": -74.006},
-        'EU': {"lat": 47.498, "lon": 19.040},
         'IL': {"lat": 31.768, "lon": 35.214},
+        'EU': {"lat": 47.498, "lon": 19.040},
         'AU': {"lat": -35.281, "lon": 149.128}
     }
-    COORD_SERVERS = {
-        'US': 'SearchServer/mozi',
-        'EU': 'row-SearchServer/mozi',
-        'IL': 'il-SearchServer/mozi',
-        'AU': 'row-SearchServer/mozi'
-    }
-    ROUTING_SERVERS = {
-        'US': 'RoutingManager/routingRequest',
-        'EU': 'row-RoutingManager/routingRequest',
-        'IL': 'il-RoutingManager/routingRequest',
-        'AU': 'row-RoutingManager/routingRequest'
-    }
+    DEFAULT_REGIONS = BASE_COORDS.keys()
+    COORD_SERVERS = defaultdict(lambda: 'row-SearchServer/mozi')
+    COORD_SERVERS['US'] = 'SearchServer/mozi'
+    COORD_SERVERS['IL'] = 'il-SearchServer/mozi'
+
+    ROUTING_SERVERS = defaultdict(lambda: 'row-RoutingManager/routingRequest')
+    ROUTING_SERVERS['US'] = 'RoutingManager/routingRequest'
+    ROUTING_SERVERS['IL'] = 'il-RoutingManager/routingRequest',
+
     COORD_MATCH = re.compile(r'^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
     def __init__(self, start_address, end_address, region='EU', vehicle_type='', avoid_toll_roads=False, avoid_subscription_roads=False, avoid_ferries=False, log_lvl=None):
@@ -52,7 +51,7 @@ class WazeRouteCalculator(object):
         region = region.upper()
         if region == 'NA':  # North America
             region = 'US'
-        self.region = region
+        self._set_server_and_coord(region)
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
@@ -73,6 +72,17 @@ class WazeRouteCalculator(object):
             self.end_coords = self.address_to_coords(end_address)
         self.log.debug('End coords: (%s, %s)', self.end_coords["lat"], self.end_coords["lon"])
 
+    def _set_server_and_coord(self, region):
+        if region in self.DEFAULT_REGIONS:
+            self.base_coord = self.BASE_COORDS[region]
+        else:
+            try:
+                self.base_coord = {'lat': float(os.environ['WRC_BASE_COORD_LAT']), 'lon': float(os.environ['WRC_BASE_COORD_LON'])}
+            except KeyError as err:
+                raise WRCError("Please set WRC_BASE_COORD_LAT and WRC_BASE_COORD_LON environment variables for custom region: %s" % region)
+        self.coord_server = self.COORD_SERVERS[region]
+        self.routing_server = self.ROUTING_SERVERS[region]
+
     def already_coords(self, address):
         """test used to see if we have coordinates or address"""
 
@@ -88,17 +98,15 @@ class WazeRouteCalculator(object):
     def address_to_coords(self, address):
         """Convert address to coordinates"""
 
-        base_coords = self.BASE_COORDS[self.region]
-        get_cord = self.COORD_SERVERS[self.region]
         url_options = {
             "q": address,
             "lang": "eng",
             "origin": "livemap",
-            "lat": base_coords["lat"],
-            "lon": base_coords["lon"]
+            "lat": self.base_coord["lat"],
+            "lon": self.base_coord["lon"]
         }
 
-        response = requests.get(self.WAZE_URL + get_cord, params=url_options, headers=self.HEADERS)
+        response = requests.get(self.WAZE_URL + self.coord_server, params=url_options, headers=self.HEADERS)
         for response_json in response.json():
             if response_json.get('city'):
                 lat = response_json['location']['lat']
@@ -114,8 +122,6 @@ class WazeRouteCalculator(object):
 
     def get_route(self, npaths=1, time_delta=0):
         """Get route data from waze"""
-
-        routing_server = self.ROUTING_SERVERS[self.region]
 
         url_options = {
             "from": "x:%s y:%s" % (self.start_coords["lon"], self.start_coords["lat"]),
@@ -134,7 +140,7 @@ class WazeRouteCalculator(object):
         if self.avoid_subscription_roads is False:
             url_options["subscription"] = "*"
 
-        response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
+        response = requests.get(self.WAZE_URL + self.routing_server, params=url_options, headers=self.HEADERS)
         response.encoding = 'utf-8'
         response_json = self._check_response(response)
         if response_json:

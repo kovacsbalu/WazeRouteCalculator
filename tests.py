@@ -2,6 +2,7 @@
 
 import WazeRouteCalculator as wrc
 import mock
+import os
 import requests_mock
 import pytest
 
@@ -10,8 +11,10 @@ class TestWRC():
 
     def setup_method(self, method):
         self.waze_url = "https://www.waze.com/"
-        self.address_req = self.waze_url + "row-SearchServer/mozi"
-        self.routing_req = self.waze_url + "row-RoutingManager/routingRequest"
+        self.default_coord_server = "row-SearchServer/mozi"
+        self.default_routing_server = "row-RoutingManager/routingRequest"
+        self.address_req = self.waze_url + self.default_coord_server
+        self.routing_req = self.waze_url + self.default_routing_server
         self.lat = 47.4979
         self.lon = 19.0402
         self.bounds = {"bottom": 47.4, "top": 47.5, "left": 19, "right": 19.3}
@@ -443,7 +446,19 @@ class TestWRC():
         with requests_mock.mock() as m:
             m.get(address_req, text=self.address_to_coords_response)
             route = wrc.WazeRouteCalculator(from_address, to_address, region='NA')
-        assert route.region == 'US'
+        assert route.base_coord == route.BASE_COORDS['US']
+
+    def test_custom_region(self):
+        from_address = 'From address'
+        to_address = 'To address'
+        bounds = {"top": 47.4, "bottom": 47.5, "right": 19, "left": 19.3}
+        address_to_coords_response = '[{"city":"Test","location":{"lat":12.34,"lon":45.67},"bounds":%s}]' % (str(bounds).replace("'", '"'))
+        with mock.patch.dict(os.environ, {'WRC_BASE_COORD_LAT': '12.34', 'WRC_BASE_COORD_LON': '45.67'}):
+            with requests_mock.mock() as m:
+                m.get(self.address_req, text=address_to_coords_response)
+                route = wrc.WazeRouteCalculator(from_address, to_address, region='XY')
+        assert route.coord_server == self.default_coord_server
+        assert route.routing_server == self.default_routing_server
 
     def test_vehicle_motor(self):
         from_address = 'From address'
@@ -524,7 +539,7 @@ class TestWRC():
             route = wrc.WazeRouteCalculator(from_address, to_address, avoid_ferries=False)
             route.get_route()
         assert 'avoid_ferries' not in req.last_request.query
-    
+
     def test_avoid_subscription_road_true(self):
         from_address = 'From address'
         to_address = 'To address'
