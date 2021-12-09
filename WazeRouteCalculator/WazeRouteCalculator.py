@@ -56,12 +56,16 @@ class WazeRouteCalculator(object):
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
-        self.route_options = ['AVOID_TRAILS']
+        self.route_options = ['AVOID_TRAILS:t']
         if avoid_toll_roads:
-            self.route_options.append('AVOID_TOLL_ROADS')
+            self.route_options.append('AVOID_TOLL_ROADS:t')
+        else:
+            self.route_options.append('AVOID_TOLL_ROADS:f')
         self.avoid_subscription_roads = avoid_subscription_roads
         if avoid_ferries:
-            self.route_options.append('AVOID_FERRIES')
+            self.route_options.append('AVOID_FERRIES:t')
+        else:
+            self.route_options.append('AVOID_FERRIES:f')
         if self.already_coords(start_address):  # See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
         else:
@@ -126,8 +130,9 @@ class WazeRouteCalculator(object):
             "returnInstructions": "true",
             "timeout": 60000,
             "nPaths": npaths,
-            "options": ','.join('%s:t' % route_option for route_option in self.route_options),
+            "options": ','.join('%s' % route_option for route_option in self.route_options),
         }
+        self.log.debug('options ' + ','.join('%s' % route_option for route_option in self.route_options)) 
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
         # Handle vignette system in Europe. Defaults to false (show all routes)
