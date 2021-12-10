@@ -206,8 +206,8 @@ class WazeRouteCalculator(object):
         """Calculate all route infos."""
 
         routes = self.get_route(npaths, time_delta)
-        results = {route['routeName' if 'routeName' in route else 'route_name']: self._add_up_route(route['results' if 'results' in route else 'result'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
+        results = {"%s-%s" % (route['routeType'][0], route['shortRouteName']): self._add_up_route(route['results' if 'results' in route else 'result'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
-        self.log.info('Time %.2f - %.2f minutes, distance %.2f - %.2f km.', min(route_time), max(route_time), min(route_distance), max(route_distance))
+        self.log.info('Min\tMax\n%.2f\t%.2f minutes\n%.2f\t%.2f km', min(route_time), max(route_time), min(route_distance), max(route_distance))
         return results

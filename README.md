@@ -160,11 +160,15 @@ route.calc_all_routes_info()
 
 ```
 python example.py
-From: Budapest, Hungary - to: Gyor, Hungary
-Time 74.45 - 129.43 minutes, distance 120.91 - 130.08 km.
+From: Budapest, Hungary - to: Győr, Hungary
+Start coords: (47.467660814, 19.077617881)
+End coords: (47.67936706542969, 17.707035064697266)
+Min	Max
+72.92	80.33 minutes
+118.75	120.21 km
 ```
 
-`calc_all_routes_info` takes an optional single parameter, the number of routes to fetch. Note that the Waze API may not return as many possibilities as requested. The function returns a dict: `{'route_name1': (route_time1, route_distance1), 'route_name2': (route_time2, route_distance2), ...}`.
+`calc_all_routes_info` takes an optional single parameter, the number of routes to fetch. Note that the Waze API may not return as many possibilities as requested. The function returns a dict: `{'routeType-shortRouteName': (route_time1, route_distance1), 'routeType-shortRouteName': (route_time2, route_distance2), ...}`.
 
 ### No real time
 
