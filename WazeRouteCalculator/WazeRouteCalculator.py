@@ -56,12 +56,12 @@ class WazeRouteCalculator(object):
         self.vehicle_type = ''
         if vehicle_type and vehicle_type in self.VEHICLE_TYPES:
             self.vehicle_type = vehicle_type.upper()
-        self.route_options = ['AVOID_TRAILS']
-        if avoid_toll_roads:
-            self.route_options.append('AVOID_TOLL_ROADS')
+        self.ROUTE_OPTIONS = {
+            'AVOID_TRAILS': 't',
+            'AVOID_TOLL_ROADS': 't' if avoid_toll_roads else 'f',
+            'AVOID_FERRIES': 't' if avoid_ferries else 'f'
+        }
         self.avoid_subscription_roads = avoid_subscription_roads
-        if avoid_ferries:
-            self.route_options.append('AVOID_FERRIES')
         if self.already_coords(start_address):  # See if we have coordinates or address to resolve
             self.start_coords = self.coords_string_parser(start_address)
         else:
@@ -126,7 +126,7 @@ class WazeRouteCalculator(object):
             "returnInstructions": "true",
             "timeout": 60000,
             "nPaths": npaths,
-            "options": ','.join('%s:t' % route_option for route_option in self.route_options),
+            "options": ','.join('%s:%s' % (opt, value) for (opt, value) in self.ROUTE_OPTIONS.items()),
         }
         if self.vehicle_type:
             url_options["vehicleType"] = self.vehicle_type
