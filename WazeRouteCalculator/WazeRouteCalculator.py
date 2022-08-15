@@ -207,7 +207,7 @@ class WazeRouteCalculator(object):
 
         routes = self.get_route(npaths, time_delta)
         try:
-            results = {"%s-%s" % (route.get('routeType', [])[:1], route.get('shortRouteName', 'unkown')): self._add_up_route(route['results' if 'results' in route else 'result'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
+            results = {"%s-%s" % (''.join(route.get('routeType', [])[:1]), route.get('shortRouteName', 'unkown')): self._add_up_route(route['results' if 'results' in route else 'result'], real_time=real_time, stop_at_bounds=stop_at_bounds) for route in routes}
         except KeyError:
             raise WRCError("wrong response")
         route_time = [route[0] for route in results.values()]
