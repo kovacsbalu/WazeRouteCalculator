@@ -27,19 +27,22 @@ class WazeRouteCalculator(object):
         'US': {"lat": 40.713, "lon": -74.006},
         'EU': {"lat": 47.498, "lon": 19.040},
         'IL': {"lat": 31.768, "lon": 35.214},
-        'AU': {"lat": -35.281, "lon": 149.128}
+        'AU': {"lat": -35.281, "lon": 149.128},
+        'BR': {"lat": -22.951, "lon": -43.210}
     }
     COORD_SERVERS = {
         'US': 'SearchServer/mozi',
         'EU': 'row-SearchServer/mozi',
         'IL': 'il-SearchServer/mozi',
-        'AU': 'row-SearchServer/mozi'
+        'AU': 'row-SearchServer/mozi',
+        'BR': 'row-SearchServer/mozi'
     }
     ROUTING_SERVERS = {
         'US': 'RoutingManager/routingRequest',
         'EU': 'row-RoutingManager/routingRequest',
         'IL': 'il-RoutingManager/routingRequest',
-        'AU': 'row-RoutingManager/routingRequest'
+        'AU': 'row-RoutingManager/routingRequest',
+        'BR': 'row-RoutingManager/routingRequest'
     }
     COORD_MATCH = re.compile(r'^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
