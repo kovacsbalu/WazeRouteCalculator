@@ -212,5 +212,5 @@ class WazeRouteCalculator(object):
             raise WRCError("wrong response")
         route_time = [route[0] for route in results.values()]
         route_distance = [route[1] for route in results.values()]
-        self.log.debu('Min\tMax\n%.2f\t%.2f minutes\n%.2f\t%.2f km', min(route_time), max(route_time), min(route_distance), max(route_distance))
+        self.log.debug('Min\tMax\n%.2f\t%.2f minutes\n%.2f\t%.2f km', min(route_time), max(route_time), min(route_distance), max(route_distance))
         return results
