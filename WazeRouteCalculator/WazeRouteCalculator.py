@@ -36,10 +36,10 @@ class WazeRouteCalculator(object):
         'AU': 'row-SearchServer/mozi'
     }
     ROUTING_SERVERS = {
-        'US': 'RoutingManager/routingRequest',
-        'EU': 'row-RoutingManager/routingRequest',
-        'IL': 'il-RoutingManager/routingRequest',
-        'AU': 'row-RoutingManager/routingRequest'
+        'US': 'https://routing-livemap-am.waze.com/RoutingManager/routingRequest',
+        'EU': 'https://routing-livemap-row.waze.com/RoutingManager/routingRequest',
+        'IL': 'https://routing-livemap-il.waze.com/RoutingManager/routingRequest',
+        'AU': 'https://routing-livemap-row.waze.com/RoutingManager/routingRequest'
     }
     COORD_MATCH = re.compile(r'^([-+]?)([\d]{1,2})(((\.)(\d+)(,)))(\s*)(([-+]?)([\d]{1,3})((\.)(\d+))?)$')
 
@@ -134,7 +134,7 @@ class WazeRouteCalculator(object):
         if self.avoid_subscription_roads is False:
             url_options["subscription"] = "*"
 
-        response = requests.get(self.WAZE_URL + routing_server, params=url_options, headers=self.HEADERS)
+        response = requests.get(routing_server, params=url_options, headers=self.HEADERS)
         response.encoding = 'utf-8'
         response_json = self._check_response(response)
         if response_json:
