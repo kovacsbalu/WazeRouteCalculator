@@ -10,7 +10,7 @@ Calculate actual route time and distance with Waze API.
 pip install WazeRouteCalculator
 ```
 
-Tested on Python 2.7 and 3.6, 3.8, 3.10
+Tested on Python 3.8, 3.10, 3.12
 
 ## Example
 
