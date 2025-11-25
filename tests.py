@@ -11,7 +11,7 @@ class TestWRC():
     def setup_method(self, method):
         self.waze_url = "https://www.waze.com/"
         self.address_req = self.waze_url + "row-SearchServer/mozi"
-        self.routing_req = self.waze_url + "row-RoutingManager/routingRequest"
+        self.routing_req = "https://routing-livemap-row.waze.com/RoutingManager/routingRequest"
         self.lat = 47.4979
         self.lon = 19.0402
         self.bounds = {"bottom": 47.4, "top": 47.5, "left": 19, "right": 19.3}
